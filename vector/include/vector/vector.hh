@@ -53,7 +53,7 @@ class Vector : private detail::VectorBuffer<T> {
 
     explicit IteratorBase(pointer p) { ptr_ = p; }
 
-    T& operator*() { return ptr_; }
+    T& operator*() { return *ptr_; }
     T* operator->() { return ptr_; }
 
     // prefix increment
@@ -155,7 +155,7 @@ class Vector : private detail::VectorBuffer<T> {
 
     // postfix increment
     ReverseIteratorBase operator++(int) {
-      IteratorBase tmp = *this;
+      ReverseIteratorBase tmp = *this;
       --*this;
       return tmp;
     }
@@ -168,7 +168,7 @@ class Vector : private detail::VectorBuffer<T> {
 
     // postfix decrement
     ReverseIteratorBase operator--(int) {
-      IteratorBase tmp = *this;
+      ReverseIteratorBase tmp = *this;
       ++*this;
       return tmp;
     }
@@ -254,9 +254,45 @@ class Vector : private detail::VectorBuffer<T> {
     detail::VectorBuffer<T> new_buf(new_cap);
     while (new_buf.sz_ < sz_) {
       detail::construct(new_buf.data_ + new_buf.sz_, data_[new_buf.sz_]);
-      ++new_buf.sz_ ;
+      ++new_buf.sz_;
+    }
+
+    delete[] data_;
+    data_ = new_buf.data_;
+    cap_ = new_cap;
+  }
+
+  void resize(std::size_t new_sz) {
+    reserve(new_sz);
+    while (sz_ < cap_) {
+      detail::construct(data_ + sz_, T());
+      ++sz_;
     }
   }
+
+  void pushBack(T&& val) {
+    static_assert(std::is_nothrow_move_constructible<T>::value);
+    static_assert(std::is_nothrow_move_assignable<T>::value);
+
+    auto old_sz = sz_;
+    if (sz_ == cap_) {
+      reserve((sz_ << 1) + 1);
+    }
+    detail::construct(data_ + old_sz, val);
+    ++sz_;
+  }
+
+  void pushBack(const T& val) {
+    T tmp(val);
+    pushBack(std::move(val));
+  }
+
+  T& front() { return *begin(); }
+  T& back() { return *end();}
+  const T& front() const { return *cbegin(); }
+  const T& back() const { return *cend(); }
+
+  void popBack() { detail::destroy(data_ + --sz_); }
 
 };
 
