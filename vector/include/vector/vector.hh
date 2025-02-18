@@ -4,6 +4,8 @@
  */
 #pragma once
 
+#include <initializer_list>
+
 #include "detail/vector_buffer.hh"
 
 namespace vector {
@@ -23,13 +25,21 @@ class Vector : private detail::VectorBuffer<T> {
     }
   }
 
+  Vector(std::initializer_list<T> init)
+      : detail::VectorBuffer<T>(init.size()) {
+    for (auto it = init.begin(); sz_ < cap_; ++it) {
+      detail::construct(data_ + sz_, *it);
+      ++sz_;
+    }
+  }
+
   Vector(Vector&& rhs) noexcept = default;
   Vector& operator=(Vector&& rhs) noexcept = default;
 
   Vector(const Vector& rhs)
       : detail::VectorBuffer<T>(rhs.sz_) {
     while (sz_ < rhs.sz_) {
-      detail::construct(data_[sz_], rhs.data_[sz_]);
+      detail::construct(data_ + sz_, rhs.data_[sz_]);
       ++sz_;
     }
   }

@@ -55,7 +55,7 @@ class VectorBuffer {
   }
 
   ~VectorBuffer() {
-    destroy(data_, data_ + sz_);
+    detail::destroy(data_, data_ + sz_);
     ::operator delete(data_);
   }
 };
