@@ -7,22 +7,9 @@
 #include <cstddef>
 #include <new>
 
+#include "mm/mm.hh"
+
 namespace vector::detail {
-
-template <typename T> void construct(T *p, const T &rhs) { new (p) T(rhs); }
-template <typename T> void construct(T *p, T &&rhs) {
-  new (p) T(std::move(rhs));
-}
-
-template <typename T>
-inline void destroy(T* p) { p->~T(); }
-
-template <typename It>
-void destroy(It begin, It end) {
-  while (begin != end) {
-    destroy(&*begin++);
-  }
-}
 
 template <typename T>
 class VectorBuffer {
@@ -55,7 +42,7 @@ class VectorBuffer {
   }
 
   ~VectorBuffer() {
-    detail::destroy(data_, data_ + sz_);
+    mm::destroy(data_, data_ + sz_);
     ::operator delete(data_);
   }
 };

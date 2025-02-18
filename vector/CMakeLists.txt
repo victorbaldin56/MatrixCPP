@@ -5,6 +5,8 @@ include(GoogleTest)
 
 add_library(vector INTERFACE)
 target_include_directories(vector INTERFACE include)
+target_link_libraries(vector INTERFACE algo)
+target_link_libraries(vector INTERFACE mm)
 target_compile_features(vector INTERFACE cxx_std_17)
 
 add_executable(construction tests/construction.cc)

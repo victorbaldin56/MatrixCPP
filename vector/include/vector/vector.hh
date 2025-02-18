@@ -6,6 +6,8 @@
 
 #include <initializer_list>
 
+#include "algo/algo.hh"
+
 #include "detail/vector_buffer.hh"
 
 namespace vector {
@@ -20,7 +22,7 @@ class Vector : private detail::VectorBuffer<T> {
   explicit Vector(std::size_t sz = 0, const T& val = T())
       : detail::VectorBuffer<T>(sz) {
     while (sz_ < cap_) {
-      detail::construct(data_ + sz_, val);
+      mm::construct(data_ + sz_, val);
       ++sz_;
     }
   }
@@ -28,7 +30,7 @@ class Vector : private detail::VectorBuffer<T> {
   Vector(std::initializer_list<T> init)
       : detail::VectorBuffer<T>(init.size()) {
     for (auto it = init.begin(); sz_ < cap_; ++it) {
-      detail::construct(data_ + sz_, *it);
+      mm::construct(data_ + sz_, *it);
       ++sz_;
     }
   }
@@ -38,10 +40,7 @@ class Vector : private detail::VectorBuffer<T> {
 
   Vector(const Vector& rhs)
       : detail::VectorBuffer<T>(rhs.sz_) {
-    while (sz_ < rhs.sz_) {
-      detail::construct(data_ + sz_, rhs.data_[sz_]);
-      ++sz_;
-    }
+    algo::copy(rhs.cbegin(), rhs.cend(), begin());
   }
 
   Vector& operator=(const Vector& rhs) {
@@ -63,8 +62,8 @@ class Vector : private detail::VectorBuffer<T> {
 
     explicit IteratorBase(pointer p) { ptr_ = p; }
 
-    T& operator*() { return *ptr_; }
-    T* operator->() { return ptr_; }
+    reference operator*() { return *ptr_; }
+    pointer operator->() { return ptr_; }
 
     // prefix increment
     IteratorBase& operator++() {
@@ -139,7 +138,7 @@ class Vector : private detail::VectorBuffer<T> {
     }
 
    private:
-    T* ptr_;
+    pointer ptr_;
   };
 
   /** reverse iterator to the vector */
@@ -154,8 +153,8 @@ class Vector : private detail::VectorBuffer<T> {
 
     explicit ReverseIteratorBase(pointer p) { ptr_ = p; }
 
-    T& operator*() { return ptr_; }
-    T* operator->() { return ptr_; }
+    reference operator*() { return ptr_; }
+    pointer operator->() { return ptr_; }
 
     // prefix increment
     ReverseIteratorBase& operator++() {
@@ -230,7 +229,7 @@ class Vector : private detail::VectorBuffer<T> {
     }
 
    private:
-    T* ptr_;
+    pointer ptr_;
   };
 
  public:
@@ -242,13 +241,13 @@ class Vector : private detail::VectorBuffer<T> {
  public:
   auto begin() { return Iterator(data_); }
   auto end() { return Iterator(data_ + sz_); }
-  auto cbegin() { return ConstIterator(data_); }
-  auto cend() { return ConstIterator(data_ + sz_); }
+  auto cbegin() const { return ConstIterator(data_); }
+  auto cend() const { return ConstIterator(data_ + sz_); }
 
   auto rbegin() { return ReverseIterator(data_ + sz_ - 1); }
   auto rend() { return ReverseIterator(data_ - 1); }
-  auto crbegin() { return ConstReverseIterator(data_ + sz_ - 1); }
-  auto crend() { return ConstReverseIterator(data_ - 1); }
+  auto crbegin() const { return ConstReverseIterator(data_ + sz_ - 1); }
+  auto crend() const { return ConstReverseIterator(data_ - 1); }
 
  public:
   auto size() const { return sz_; }
@@ -263,7 +262,7 @@ class Vector : private detail::VectorBuffer<T> {
   void reserve(std::size_t new_cap) {
     detail::VectorBuffer<T> new_buf(new_cap);
     while (new_buf.sz_ < sz_) {
-      detail::construct(new_buf.data_ + new_buf.sz_, data_[new_buf.sz_]);
+      mm::construct(new_buf.data_ + new_buf.sz_, data_[new_buf.sz_]);
       ++new_buf.sz_;
     }
 
@@ -275,7 +274,7 @@ class Vector : private detail::VectorBuffer<T> {
   void resize(std::size_t new_sz) {
     reserve(new_sz);
     while (sz_ < cap_) {
-      detail::construct(data_ + sz_, T());
+      mm::construct(data_ + sz_, T());
       ++sz_;
     }
   }
@@ -288,7 +287,7 @@ class Vector : private detail::VectorBuffer<T> {
     if (sz_ == cap_) {
       reserve((sz_ << 1) + 1);
     }
-    detail::construct(data_ + old_sz, val);
+    mm::construct(data_ + old_sz, val);
     ++sz_;
   }
 
@@ -302,7 +301,7 @@ class Vector : private detail::VectorBuffer<T> {
   const T& front() const { return *cbegin(); }
   const T& back() const { return *cend(); }
 
-  void popBack() { detail::destroy(data_ + --sz_); }
+  void popBack() { mm::destroy(data_ + --sz_); }
 
 };
 

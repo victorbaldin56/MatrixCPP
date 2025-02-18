@@ -3,5 +3,7 @@ project(Matrix)
 
 find_package(GTest REQUIRED)
 
+add_subdirectory(memory_manager)
+add_subdirectory(algo)
 add_subdirectory(vector)
 add_subdirectory(matrix)
