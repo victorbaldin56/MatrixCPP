@@ -11,7 +11,7 @@ TEST(vector, construct) {
   ASSERT_TRUE(std::equal(v1.begin(), v1.end(), v2.begin()));
 }
 
-int main() {
-  ::testing::InitGoogleTest();
+int main(int argc, char** argv) {
+  ::testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
 }
