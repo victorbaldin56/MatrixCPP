@@ -1,7 +1,9 @@
 cmake_minimum_required(VERSION 3.14)
 project(Matrix)
 
-enable_testing()
+if (${BUILD_TESTING})
+  enable_testing()
+endif()
 find_package(GTest REQUIRED)
 
 include(GoogleTest)
