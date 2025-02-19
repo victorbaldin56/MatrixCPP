@@ -111,10 +111,12 @@ class Matrix {
     for (auto j = idx + 1; j < rows_; ++j) {
       auto shift_j = j * cols_;
 
+      auto jit = data_.begin() + shift_j;
       auto coef = data_[shift_j + idx] / data_[i_offset + idx];
-      for (unsigned k = 0; k < cols_; ++k) {
-        data_[shift_j + k] -= coef * data_[i_offset + k];
-      }
+      std::transform(
+          data_.begin() + i_offset, data_.begin() + i_offset + cols_,
+          jit, jit,
+          [coef](const auto& a, const auto& b) { return b - coef * a; });
     }
   }
 
