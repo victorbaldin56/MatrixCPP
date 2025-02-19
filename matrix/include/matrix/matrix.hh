@@ -7,13 +7,25 @@
 #include <cstddef>
 #include <cmath>
 #include <stdexcept>
+#include <type_traits>
 #include <vector>
 
 #include "numeric_traits.hh"
 
 namespace matrix {
 
-template <typename T>
+template <
+    typename T,
+    typename Enable = typename std::enable_if<
+        std::is_convertible_v<int, T> &&
+        std::is_same<
+            decltype(std::declval<T>() + std::declval<T>()), T>::value &&
+        std::is_same<
+            decltype(std::declval<T>() - std::declval<T>()), T>::value &&
+        std::is_same<
+            decltype(std::declval<T>() * std::declval<T>()), T>::value &&
+        std::is_same<
+            decltype(std::declval<T>() / std::declval<T>()), T>::value>::type>
 class Matrix {
   std::vector<T> data_;
   std::size_t rows_;
@@ -72,7 +84,6 @@ class Matrix {
   static Matrix eye(std::size_t n) {
     Matrix m(n, n);
     for (std::size_t i = 0; i < m.rows(); ++i) {
-      // FIXME: не факт что скастуется
       m[i][i] = static_cast<T>(1);
     }
     return m;
