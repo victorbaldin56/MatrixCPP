@@ -67,30 +67,26 @@ class Matrix {
         rows_(std::ceil(static_cast<double>(data_.size()) / cols)) {}
 
  public:
-  class Row {
-    Iterator it_;
+  Iterator operator[](std::size_t pos) noexcept {
+    return data_.begin() + pos * cols_;
+  }
 
-   public:
-    Row(Iterator it) : it_(it) {}
-    T& operator[](std::size_t pos) { return it_[pos]; }
-    const T& operator[](std::size_t pos) const { return it_[pos]; }
-  };
+  ConstIterator operator[](std::size_t pos) const noexcept {
+    return data_.cbegin() + pos * cols_;
+  }
 
- public:
-  Row operator[](std::size_t pos) { return Row(data_.begin() + pos * cols_); }
+  auto begin() noexcept { return data_.begin(); }
+  auto end() noexcept { return data_.end(); }
+  auto cbegin() const noexcept { return data_.cbegin(); }
+  auto cend() const noexcept { return data_.cend(); }
 
-  auto begin() { return data_.begin(); }
-  auto end() { return data_.end(); }
-  auto cbegin() const { return data_.cbegin(); }
-  auto cend() const { return data_.cend(); }
+  auto rbegin() noexcept { return data_.rbegin(); }
+  auto rend() noexcept { return data_.rend(); }
+  auto crbegin() const noexcept { return data_.crbegin(); }
+  auto crend() const noexcept { return data_.crend(); }
 
-  auto rbegin() { return data_.rbegin(); }
-  auto rend() { return data_.rend(); }
-  auto crbegin() const { return data_.crbegin(); }
-  auto crend() const { return data_.crend(); }
-
-  auto rows() { return rows_; }
-  auto cols() { return cols_; }
+  auto rows() const noexcept { return rows_; }
+  auto cols() const noexcept { return cols_; }
 
   /** Creates eye matrix */
   static Matrix eye(std::size_t n) {
@@ -105,12 +101,8 @@ class Matrix {
     if (a == b) {
       return false;
     }
-
-    auto a_offset = a * cols_;
-    auto b_offset = b * cols_;
-    for (auto i = 0; i < cols_; ++i) {
-      std::swap(data_[a_offset + i], data_[b_offset + i]);
-    }
+    auto ait = operator[](a);
+    std::swap_ranges(ait, ait + cols_, operator[](b));
     return true;
   }
 
