@@ -9,3 +9,4 @@ find_package(GTest REQUIRED)
 include(GoogleTest)
 
 add_subdirectory(matrix)
+add_subdirectory(driver)
