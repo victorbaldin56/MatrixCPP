@@ -49,7 +49,7 @@ jobs:
 
     - name: Creating and setting venv
       run: sudo apt-get -y update &&
-           sudo apt-get install python3 pip g++-12;
+           sudo apt-get install python3 pip g++-12 python3-numpy;
            python3 -m venv .venv;
            source .venv/bin/activate;
            conan profile detect --force;
