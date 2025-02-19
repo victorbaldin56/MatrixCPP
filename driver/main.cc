@@ -1,5 +1,6 @@
 #include <cstdlib>
 #include <iostream>
+#include <iterator>
 
 #include "matrix/matrix.hh"
 
