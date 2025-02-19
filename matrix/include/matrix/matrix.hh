@@ -3,111 +3,137 @@
  */
 #pragma once
 
-#include <iterator>
-#include <initializer_list>
+#include <algorithm>
+#include <cstddef>
+#include <cmath>
+#include <vector>
 
-#include "detail/matrix_buffer.hh"
+#include "numeric_traits.hh"
 
 namespace matrix {
 
 template <typename T>
-class Matrix : private detail::VectorBuffer<T> {
-  using detail::VectorBuffer<T>::nrows_;
-  using detail::VectorBuffer<T>::ncols_;
-  using detail::VectorBuffer<T>::data_;
-
-  struct Row {
-    T* row_;
-
-    /** Second [] */
-    T& operator[](std::size_t pos) { return row_[pos]; }
-    const T& operator[](std::size_t pos) const { return row_[pos]; }
-  };
+class Matrix {
+  std::vector<T> data_;
+  std::size_t rows_;
+  std::size_t cols_;
 
  public:
-  Matrix(std::size_t rows, std::size_t cols, T value = T())
-      : detail::VectorBuffer<T>(rows, cols) {
-    for (std::size_t i = 0; i < nrows_ * ncols_; ++i) {
-      detail::construct(data_ + i, value);
-    }
-  }
+  using Iterator = typename std::vector<T>::iterator;
+  using ConstIterator = typename std::vector<T>::const_iterator;
+  using ReverseIterator = typename std::vector<T>::reverse_iterator;
+  using ConstReverseIterator = typename std::vector<T>::const_reverse_iterator;
+
+ public:
+  /** Creates and fills matrix with given value */
+  Matrix(std::size_t rows, std::size_t cols, T val = T())
+      : data_(rows * cols, val), rows_(rows), cols_(cols) {}
 
   /** Creates matrix from given sequence */
   template <typename It>
   Matrix(std::size_t rows, std::size_t cols, It begin, It end)
-      : detail::VectorBuffer<T>(rows, cols) {
-    for (std::size_t i = 0; i < rows * cols && begin != end; ++i, ++begin) {
-      detail::construct(data_ + i, *begin);
-    }
-  }
+      : rows_(rows), cols_(cols),
+        data_(begin, std::min(end, begin + rows * cols)) {}
 
-  Matrix(const Matrix& other)
-      : detail::VectorBuffer<T>(other.nrows(), other.ncols()) {
-    for (std::size_t i = 0; i < nrows_ * ncols_; ++i) {
-      detail::construct(data_ + i, other[i]);
-    }
-  }
+  template <typename It>
+  Matrix(std::size_t cols, It begin, It end)
+      : data_(begin, end),
+        cols_(cols),
+        rows_(std::ceil(static_cast<double>(data_.size()) / cols)) {}
 
-  Matrix& operator=(const Matrix& other) {
-    Matrix tmp(other);
-    std::swap(*this, tmp);
-    return *this;
-  }
+ public:
+  class Row {
+    Iterator it_;
 
-  Matrix(Matrix&& other) noexcept = default;
-  Matrix& operator=(Matrix&& other) noexcept = default;
+   public:
+    Row(Iterator it) : it_(it) {}
+    T& operator[](std::size_t pos) { return it_[pos]; }
+    const T& operator[](std::size_t pos) const { return it_[pos]; }
+  };
 
-  /** First [] */
-  Row operator[](std::size_t row) { return Row(data_ + ncols_ * row); }
+ public:
+  Row operator[](std::size_t pos) { return Row(data_.begin() + pos * cols_); }
+
+  auto begin() { return data_.begin(); }
+  auto end() { return data_.end(); }
+  auto cbegin() const { return data_.cbegin(); }
+  auto cend() const { return data_.cend(); }
+
+  auto rbegin() { return data_.rbegin(); }
+  auto rend() { return data_.rend(); }
+  auto crbegin() const { return data_.crbegin(); }
+  auto crend() const { return data_.crend(); }
+
+  auto rows() { return rows_; }
+  auto cols() { return cols_; }
 
   /** Creates eye matrix */
   static Matrix eye(std::size_t n) {
-    Matrix mx(n, n, 0);
-    for (std::size_t i = 0; i < n; ++i) {
-      mx[i][i] = 1;
+    Matrix m(n, n);
+    for (std::size_t i = 0; i < m.rows(); ++i) {
+      // FIXME: не факт что скастуется
+      m[i][i] = static_cast<T>(1);
     }
+    return m;
   }
 
-  std::size_t nrows() const { return nrows_; }
-  std::size_t ncols() const { return ncols_; }
+  bool swapRows(std::size_t a, std::size_t b) {
+    if (a == b) {
+      return false;
+    }
 
-  bool equal(const Matrix& other) const {
-    return nrows_ == other.nrows_ && ncols_ && other.ncols_
-        && std::equal(data_, data_ + nrows_ * ncols_, other.data_);
+    auto a_offset = a * cols_;
+    auto b_offset = b * cols_;
+    for (auto i = 0; i < cols_; ++i) {
+      std::swap(data_[a_offset + i], data_[b_offset + i]);
+    }
+    return true;
   }
 
-  Matrix& negate() & {
-    std::for_each(data_, data_ + nrows_ * ncols_, [](T& e){ e = -e; });
-  }
+  void simplifyRows(std::size_t idx) {
+    auto i_offset = idx * cols_;
+    for (auto j = idx + 1; j < rows_; ++j) {
+      auto shift_j = j * cols_;
 
-  Matrix& transpose() & {
-    Matrix tmp(*this);
-    tmp.ncols_ = nrows_;
-    tmp.nrows_ = ncols_;
-
-    for (std::size_t i = 0; i < nrows_; ++i) {
-      for (std::size_t j = 0; j < ncols_; ++j) {
-        tmp[j][i] = *this[i][j];
+      auto coef = data_[shift_j + idx] / data_[i_offset + idx];
+      for (unsigned k = 0; k < cols_; ++k) {
+        data_[shift_j + k] -= coef * data_[i_offset + k];
       }
     }
-    std::swap(*this, tmp);
   }
 
   T det() const {
+    // FIXME
+    if (rows_ != cols_) {
+      throw std::runtime_error("Not square matrix");
+    }
 
+    auto mcopy(*this);
+    auto sign = 1;
+    for (auto i = 0; i < cols_; ++i) {
+      auto pivot = i;
+      for (auto j = i + 1; j < rows_; ++j) {
+        if (std::abs(mcopy[j][i]) > std::abs(mcopy[pivot][i])) {
+          pivot = j;
+        }
+      }
+
+      if (mcopy.swapRows(i, pivot)) {
+        sign = -sign;
+      }
+
+      if (numeric_traits::isClose<double>(mcopy[i][i], 0)) {
+        return 0;
+      }
+      mcopy.simplifyRows(i);
+    }
+
+    T det = static_cast<T>(sign);
+    for (auto i = 0; i < rows_; ++i) {
+      det *= mcopy[i][i];
+    }
+    return det;
   }
-
- private:
-
- public:
-  using Iterator = IteratorBase<false>;
-  using ConstIterator = IteratorBase<true>;
-
-  Iterator begin() const { return Iterator(data_); }
-  Iterator end() const { return Iterator(data_ + nrows_ * ncols_); }
-
-  ConstIterator cbegin() const { return ConstIterator(data_); }
-  ConstIterator cend() const { return ConstIterator(data_ + nrows_ * ncols_); }
 };
 
 } // namespace matrix
