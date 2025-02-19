@@ -72,4 +72,4 @@ jobs:
         cmake --build build -j
 
     - name: Test
-      run: ctest --output-on-failure --test-dir build && python3 ./run_e2e_test.py
+      run: ctest --output-on-failure --test-dir build

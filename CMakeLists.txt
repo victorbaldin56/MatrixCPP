@@ -10,3 +10,6 @@ include(GoogleTest)
 
 add_subdirectory(matrix)
 add_subdirectory(driver)
+
+add_test(NAME e2e
+         COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/run_e2e_test.py)
