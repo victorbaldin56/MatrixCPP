@@ -43,12 +43,24 @@ class Matrix {
       : data_(rows * cols, val), rows_(rows), cols_(cols) {}
 
   /** Creates matrix from given sequence */
-  template <typename It>
+  template <
+      typename It,
+      typename E = typename std::enable_if<
+          std::is_base_of<
+              std::input_iterator_tag,
+              typename
+                  std::iterator_traits<It>::iterator_category>::value>::type>
   Matrix(std::size_t rows, std::size_t cols, It begin, It end)
       : rows_(rows), cols_(cols),
         data_(begin, std::min(end, begin + rows * cols)) {}
 
-  template <typename It>
+  template <
+      typename It,
+      typename E = typename std::enable_if<
+          std::is_base_of<
+              std::input_iterator_tag,
+              typename
+                  std::iterator_traits<It>::iterator_category>::value>::type>
   Matrix(std::size_t cols, It begin, It end)
       : data_(begin, end),
         cols_(cols),
@@ -89,7 +101,7 @@ class Matrix {
     return m;
   }
 
-  bool swapRows(std::size_t a, std::size_t b) {
+  bool swapRows(std::size_t a, std::size_t b) noexcept {
     if (a == b) {
       return false;
     }
