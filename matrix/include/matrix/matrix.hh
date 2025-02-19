@@ -6,8 +6,9 @@
 #include <algorithm>
 #include <cstddef>
 #include <cmath>
-#include <type_traits>
 #include <vector>
+
+#include "numeric_traits.hh"
 
 namespace matrix {
 
@@ -121,8 +122,7 @@ class Matrix {
         sign = -sign;
       }
 
-      // FIXME
-      if (mcopy[i][i] == 0) {
+      if (numeric_traits::isClose<double>(mcopy[i][i], 0)) {
         return 0;
       }
       mcopy.simplifyRows(i);
