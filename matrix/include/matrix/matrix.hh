@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <cstddef>
 #include <cmath>
+#include <exception>
 #include <vector>
 
 #include "numeric_traits.hh"
