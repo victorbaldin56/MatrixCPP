@@ -40,6 +40,7 @@ class Matrix {
   using value_type = typename InternalContainer::value_type;
   using reference = typename InternalContainer::reference;
   using const_reference = typename InternalContainer::const_reference;
+  using pointer = typename InternalContainer::pointer;
   using difference_type = typename InternalContainer::difference_type;
   using size_type = typename InternalContainer::size_type;
 
@@ -79,32 +80,63 @@ class Matrix {
 
   virtual ~Matrix() {}
 
+ private:
+  template <bool IsConst>
+  class RowBase {
+    using StoredIterator
+        = typename std::conditional<IsConst, const_iterator, iterator>::type;
+
+    StoredIterator begin_;
+    size_type cols_;
+
+   public:
+    RowBase(StoredIterator p, size_type cols) noexcept : begin_(p), cols_(cols) {}
+
+    template <typename = std::enable_if<!IsConst>>
+    reference operator[](size_type pos) { return begin_[pos]; }
+
+    const_reference operator[](size_type pos) const { return begin_[pos]; }
+
+    template <typename = std::enable_if<!IsConst>>
+    StoredIterator begin() { return begin_; }
+
+    template <typename = std::enable_if<!IsConst>>
+    StoredIterator end() { return begin_ + cols_; }
+
+    const_iterator cbegin() const { return begin_; }
+    const_iterator cend() const { return begin_ + cols_; }
+  };
+
  public:
-  auto operator[](size_type pos) noexcept {
-    return data_.begin() + pos * cols_;
+  using Row = RowBase<false>;
+  using ConstRow = RowBase<true>;
+
+ public:
+  Row operator[](size_type pos) noexcept {
+    return Row(data_.begin() + pos * cols_, cols_);
   }
 
-  auto operator[](size_type pos) const noexcept {
-    return data_.cbegin() + pos * cols_;
+  ConstRow operator[](size_type pos) const noexcept {
+    return ConstRow(data_.begin() + pos * cols_, cols_);
   }
 
-  auto begin() noexcept { return data_.begin(); }
-  auto end() noexcept { return data_.end(); }
-  auto cbegin() const noexcept { return data_.cbegin(); }
-  auto cend() const noexcept { return data_.cend(); }
+  iterator begin() noexcept { return data_.begin(); }
+  iterator end() noexcept { return data_.end(); }
+  const_iterator cbegin() const noexcept { return data_.cbegin(); }
+  const_iterator cend() const noexcept { return data_.cend(); }
 
-  auto rbegin() noexcept { return data_.rbegin(); }
-  auto rend() noexcept { return data_.rend(); }
-  auto crbegin() const noexcept { return data_.crbegin(); }
-  auto crend() const noexcept { return data_.crend(); }
+  reverse_iterator rbegin() noexcept { return data_.rbegin(); }
+  reverse_iterator rend() noexcept { return data_.rend(); }
+  const_reverse_iterator crbegin() const noexcept { return data_.crbegin(); }
+  const_reverse_iterator crend() const noexcept { return data_.crend(); }
 
-  auto rows() const noexcept { return rows_; }
-  auto cols() const noexcept { return cols_; }
+  size_type rows() const noexcept { return rows_; }
+  size_type cols() const noexcept { return cols_; }
 
-  auto isSquare() const noexcept { return rows_ == cols_; }
+  bool isSquare() const noexcept { return rows_ == cols_; }
 
   /** Creates eye matrix */
-  static auto eye(size_type n) {
+  static Matrix eye(size_type n) {
     Matrix m(n, n);
     for (std::size_t i = 0; i < m.rows(); ++i) {
       m[i][i] = static_cast<T>(1);
@@ -112,16 +144,16 @@ class Matrix {
     return m;
   }
 
-  auto swapRows(size_type a, size_type b) noexcept {
+  bool swapRows(size_type a, size_type b) noexcept {
     if (a == b) {
       return false;
     }
-    auto ait = operator[](a);
-    std::swap_ranges(ait, ait + cols_, operator[](b));
+    auto arow = operator[](a);
+    std::swap_ranges(arow.begin(), arow.end(), operator[](b).begin());
     return true;
   }
 
-  auto simplifyRows(size_type idx) {
+  void simplifyRows(size_type idx) {
     auto i_offset = idx * cols_;
     for (auto j = idx + 1; j < rows_; ++j) {
       auto shift_j = j * cols_;
@@ -135,7 +167,7 @@ class Matrix {
     }
   }
 
-  auto det() const {
+  T det() const {
     if (!isSquare()) {
       throw std::runtime_error("Matrix::det: square matrix required.");
     }
