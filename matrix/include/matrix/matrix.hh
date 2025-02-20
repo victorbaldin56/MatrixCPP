@@ -16,7 +16,7 @@
 namespace matrix {
 
 template <
-    typename T,
+    typename T, typename Alloc = std::allocator<T>,
     typename = std::enable_if<
         std::is_convertible_v<int, T> &&
         std::is_same<
@@ -34,9 +34,11 @@ class Matrix {
   // 1. Positive attitude to cache effects.
   // 2. Less dynamic memory allocations.
   // 3. Less indirections.
-  using ContigiousContainer = typename vector::Vector<T>; /** stores matrix data */
+  using ContigiousContainer
+      = typename vector::Vector<T, Alloc>; /** stores matrix data */
 
  public: // member types
+  using allocator_type = typename ContigiousContainer::allocator_type;
   using iterator = typename ContigiousContainer::iterator;
   using const_iterator = typename ContigiousContainer::const_iterator;
   using reverse_iterator = typename ContigiousContainer::reverse_iterator;
@@ -51,8 +53,9 @@ class Matrix {
 
  public: // constructors
   /** Creates and fills matrix with given value */
-  Matrix(size_type rows, size_type cols, const_reference val = value_type())
-      : data_(rows * cols, val), rows_(rows), cols_(cols) {}
+  Matrix(size_type rows, size_type cols, const_reference val = value_type(),
+         const allocator_type& alloc = allocator_type())
+      : data_(rows * cols, val, alloc), rows_(rows), cols_(cols) {}
 
   /** Creates matrix from given sequence */
   template <
@@ -62,9 +65,10 @@ class Matrix {
               std::input_iterator_tag,
               typename
                   std::iterator_traits<It>::iterator_category>::value>>
-  Matrix(size_type rows, size_type cols, It begin, It end)
+  Matrix(size_type rows, size_type cols, It begin, It end,
+         const allocator_type& alloc = allocator_type())
       : rows_(rows), cols_(cols),
-        data_(rows * cols) { std::copy(begin, end, data_.begin()); }
+        data_(rows * cols, alloc) { std::copy(begin, end, data_.begin()); }
 
   template <
       typename It,
@@ -73,8 +77,9 @@ class Matrix {
               std::input_iterator_tag,
               typename
                   std::iterator_traits<It>::iterator_category>::value>>
-  Matrix(size_type cols, It begin, It end)
-      : data_(begin, end),
+  Matrix(size_type cols, It begin, It end,
+         const allocator_type& alloc = allocator_type())
+      : data_(begin, end, alloc),
         cols_(cols),
         rows_(std::ceil(static_cast<double>(data_.size()) / cols)) {}
 
