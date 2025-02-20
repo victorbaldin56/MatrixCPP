@@ -1,3 +1,4 @@
+import os
 import numpy as np
 import subprocess
 
@@ -20,8 +21,9 @@ def getDeterminantFromDriver(matrix):
   # Convert matrix to space-separated string format
   matrix_str = str(matrix.shape[0]) + " " + "\n".join(" ".join(f"{val:.6f}" for val in row) for row in matrix) + "\n"
 
+  file_path = os.path.abspath(os.path.dirname(__file__))
   process = subprocess.run(
-    ["./build/driver/driver"],  # External executable
+    [file_path + "/build/driver/driver"],  # External executable
     input=matrix_str, text=True, capture_output=True
   )
 

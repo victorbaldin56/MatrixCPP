@@ -15,6 +15,21 @@ TEST(matrix_ctor, simple) {
   ASSERT_EQ(v1, v2);
 }
 
+TEST(matrix_assign, ilist) {
+  matrix::Matrix<double> m(5, 6);
+  std::initializer_list<double> il{1, 2, 3, 4, 5, 6,
+                                   1, 2, 3, 4, 5, 6,
+                                   1, 2, 3, 4, 5, 6,
+                                   1, 2, 3, 4, 5, 6,
+                                   1, 2, 3, 4, 5, 6,
+                                   1, 2, 3, 4, 5, 6};
+  m = il;
+  std::vector<double> v(il);
+  ASSERT_EQ(m.cols(), 6);
+  ASSERT_EQ(m.rows(), 6);
+  ASSERT_TRUE(std::equal(v.begin(), v.end(), m.begin()));
+}
+
 int main(int argc, char** argv) {
   ::testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
