@@ -174,7 +174,7 @@ class Matrix {
  public: // computing functions
   value_type det() const {
     if (!isSquare()) {
-      throw std::runtime_error("Matrix::det: square matrix required.");
+      throw std::runtime_error("Matrix::det: rows_ != cols_");
     }
 
     auto mcopy(*this);
@@ -197,7 +197,7 @@ class Matrix {
       mcopy.simplifyRows(i);
     }
 
-    T det = static_cast<T>(sign);
+    auto det = static_cast<value_type>(sign);
     for (auto i = 0; i < rows_; ++i) {
       det *= mcopy[i][i];
     }
