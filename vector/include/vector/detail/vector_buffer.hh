@@ -30,7 +30,6 @@ inline void destroy(T* p) noexcept { p->~T(); }
 template <
       typename It,
       typename = std::enable_if<
-          std::is_pointer<It>::value &&
           std::is_base_of<
               std::input_iterator_tag,
               typename
