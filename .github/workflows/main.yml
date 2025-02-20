@@ -43,15 +43,12 @@ jobs:
       run: |
         echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
 
-    - name: Install Conan
-      id: conan
-      uses: turtlebrowser/get-conan@main
-
     - name: Creating and setting venv
       run: sudo apt-get -y update &&
-           sudo apt-get install python3 pip g++-12 python3-numpy;
+           sudo apt-get install python3 pip g++-12;
            python3 -m venv .venv;
            source .venv/bin/activate;
+           pip install -r requirements.txt;
            conan profile detect --force;
            conan install . -s build_type=${{ matrix.build_type }} --output-folder=build --build=missing
 
