@@ -29,9 +29,13 @@ template <
         std::is_same<
             decltype(std::declval<T>() / std::declval<T>()), T>::value>>
 class Matrix {
+  // Contigious storage chosen here because of
+  // 1. Positive attitude to cache effects.
+  // 2. Less dynamic memory allocations.
+  // 3. Less indirections.
   using InternalContainer = typename std::vector<T>; /** stores matrix data */
 
- public:
+ public: // member types
   using iterator = typename InternalContainer::iterator;
   using const_iterator = typename InternalContainer::const_iterator;
   using reverse_iterator = typename InternalContainer::reverse_iterator;
@@ -44,14 +48,9 @@ class Matrix {
   using difference_type = typename InternalContainer::difference_type;
   using size_type = typename InternalContainer::size_type;
 
- private:
-  InternalContainer data_;
-  size_type rows_;
-  size_type cols_;
-
- public:
+ public: // constructors
   /** Creates and fills matrix with given value */
-  Matrix(std::size_t rows, std::size_t cols, T val = T())
+  Matrix(size_type rows, size_type cols, T val = T())
       : data_(rows * cols, val), rows_(rows), cols_(cols) {}
 
   /** Creates matrix from given sequence */
@@ -62,7 +61,7 @@ class Matrix {
               std::input_iterator_tag,
               typename
                   std::iterator_traits<It>::iterator_category>::value>>
-  Matrix(std::size_t rows, std::size_t cols, It begin, It end)
+  Matrix(size_type rows, size_type cols, It begin, It end)
       : rows_(rows), cols_(cols),
         data_(rows * cols) { std::copy(begin, end, data_.begin()); }
 
@@ -73,7 +72,7 @@ class Matrix {
               std::input_iterator_tag,
               typename
                   std::iterator_traits<It>::iterator_category>::value>>
-  Matrix(std::size_t cols, It begin, It end)
+  Matrix(size_type cols, It begin, It end)
       : data_(begin, end),
         cols_(cols),
         rows_(std::ceil(static_cast<double>(data_.size()) / cols)) {}
@@ -82,7 +81,7 @@ class Matrix {
 
  private:
   template <bool IsConst>
-  class RowBase {
+  class ProxyRowBase {
     using StoredIterator
         = typename std::conditional<IsConst, const_iterator, iterator>::type;
 
@@ -90,7 +89,7 @@ class Matrix {
     size_type cols_;
 
    public:
-    RowBase(StoredIterator p, size_type cols) noexcept : begin_(p), cols_(cols) {}
+    ProxyRowBase(StoredIterator p, size_type cols) noexcept : begin_(p), cols_(cols) {}
 
     template <typename = std::enable_if<!IsConst>>
     reference operator[](size_type pos) { return begin_[pos]; }
@@ -107,19 +106,25 @@ class Matrix {
     const_iterator cend() const { return begin_ + cols_; }
   };
 
- public:
-  using Row = RowBase<false>;
-  using ConstRow = RowBase<true>;
+ public: // member types
+  using ProxyRow = ProxyRowBase<false>;
+  using ConstProxyRow = ProxyRowBase<true>;
 
- public:
-  Row operator[](size_type pos) noexcept {
-    return Row(data_.begin() + pos * cols_, cols_);
+ public: // accessors
+  ProxyRow operator[](size_type pos) noexcept {
+    return ProxyRow(data_.begin() + pos * cols_, cols_);
   }
 
-  ConstRow operator[](size_type pos) const noexcept {
-    return ConstRow(data_.begin() + pos * cols_, cols_);
+  ConstProxyRow operator[](size_type pos) const noexcept {
+    return ConstProxyRow(data_.begin() + pos * cols_, cols_);
   }
 
+  size_type rows() const noexcept { return rows_; }
+  size_type cols() const noexcept { return cols_; }
+
+  bool isSquare() const noexcept { return rows_ == cols_; }
+
+ public: // iterators
   iterator begin() noexcept { return data_.begin(); }
   iterator end() noexcept { return data_.end(); }
   const_iterator cbegin() const noexcept { return data_.cbegin(); }
@@ -130,19 +135,15 @@ class Matrix {
   const_reverse_iterator crbegin() const noexcept { return data_.crbegin(); }
   const_reverse_iterator crend() const noexcept { return data_.crend(); }
 
-  size_type rows() const noexcept { return rows_; }
-  size_type cols() const noexcept { return cols_; }
-
-  bool isSquare() const noexcept { return rows_ == cols_; }
-
-  /** Creates eye matrix */
-  static Matrix eye(size_type n) {
-    Matrix m(n, n);
-    for (std::size_t i = 0; i < m.rows(); ++i) {
-      m[i][i] = static_cast<T>(1);
-    }
-    return m;
+ public: // modifiers
+  void resize(size_type new_rows, size_type new_cols) {
+    rows_ = new_rows;
+    cols_ = new_cols;
+    data_.resize(rows_ * cols_);
   }
+
+  void setRows(size_type new_rows) { resize(new_rows, cols_); }
+  void setCols(size_type new_cols) { resize(rows_, new_cols); }
 
   bool swapRows(size_type a, size_type b) noexcept {
     if (a == b) {
@@ -167,7 +168,8 @@ class Matrix {
     }
   }
 
-  T det() const {
+ public: // computing functions
+  value_type det() const {
     if (!isSquare()) {
       throw std::runtime_error("Matrix::det: square matrix required.");
     }
@@ -187,7 +189,7 @@ class Matrix {
       }
 
       if (numeric_traits::isClose<double>(mcopy[i][i], 0)) {
-        return static_cast<T>(0);
+        return static_cast<value_type>(0);
       }
       mcopy.simplifyRows(i);
     }
@@ -198,6 +200,31 @@ class Matrix {
     }
     return det;
   }
+
+ public: // assignments
+  Matrix& operator=(std::initializer_list<value_type> ilist) {
+    auto sz = ilist.size();
+    if (sz > rows_ * cols_) {
+      setRows(std::ceil(static_cast<double>(sz) / cols_));
+    }
+    std::copy(ilist.begin(), ilist.end(), data_.begin());
+    return *this;
+  }
+
+ public: // static functions
+  /** Creates eye matrix */
+  static Matrix eye(size_type n) {
+    Matrix m(n, n);
+    for (std::size_t i = 0; i < m.rows(); ++i) {
+      m[i][i] = static_cast<T>(1);
+    }
+    return m;
+  }
+
+ private:
+  InternalContainer data_;
+  size_type rows_;
+  size_type cols_;
 };
 
 } // namespace matrix
