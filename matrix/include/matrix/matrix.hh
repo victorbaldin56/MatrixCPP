@@ -19,6 +19,8 @@ template <
     typename = std::enable_if<
         std::is_convertible_v<int, T> &&
         std::is_same<
+            decltype(-std::declval<T>()), T>::value &&
+        std::is_same<
             decltype(std::declval<T>() + std::declval<T>()), T>::value &&
         std::is_same<
             decltype(std::declval<T>() - std::declval<T>()), T>::value &&
