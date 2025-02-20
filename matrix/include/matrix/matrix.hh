@@ -16,7 +16,7 @@ namespace matrix {
 
 template <
     typename T,
-    typename Enable = typename std::enable_if<
+    typename = std::enable_if<
         std::is_convertible_v<int, T> &&
         std::is_same<
             decltype(std::declval<T>() + std::declval<T>()), T>::value &&
@@ -25,7 +25,7 @@ template <
         std::is_same<
             decltype(std::declval<T>() * std::declval<T>()), T>::value &&
         std::is_same<
-            decltype(std::declval<T>() / std::declval<T>()), T>::value>::type>
+            decltype(std::declval<T>() / std::declval<T>()), T>::value>>
 class Matrix {
   using InternalContainer = typename std::vector<T>; /** stores matrix data */
 
@@ -54,22 +54,22 @@ class Matrix {
   /** Creates matrix from given sequence */
   template <
       typename It,
-      typename E = typename std::enable_if<
+      typename = std::enable_if<
           std::is_base_of<
               std::input_iterator_tag,
               typename
-                  std::iterator_traits<It>::iterator_category>::value>::type>
+                  std::iterator_traits<It>::iterator_category>::value>>
   Matrix(std::size_t rows, std::size_t cols, It begin, It end)
       : rows_(rows), cols_(cols),
         data_(begin, std::min(end, begin + rows * cols)) {}
 
   template <
       typename It,
-      typename E = typename std::enable_if<
+      typename = std::enable_if<
           std::is_base_of<
               std::input_iterator_tag,
               typename
-                  std::iterator_traits<It>::iterator_category>::value>::type>
+                  std::iterator_traits<It>::iterator_category>::value>>
   Matrix(std::size_t cols, It begin, It end)
       : data_(begin, end),
         cols_(cols),
