@@ -5,52 +5,46 @@
 
 #include <algorithm>
 #include <cstddef>
-#include <new>
+#include <memory>
 
 /** FOR INTERNAL PURPOSES ONLY. DO NOT USE IN USER PROGRAM */
 namespace vector::detail {
 
-// TODO: завернуть бы в аллокатор
-template <typename T>
-T* allocate(std::size_t n) {
-  return static_cast<T*>(::operator new(n * sizeof(T)));
-}
-
-template <typename T>
-void construct(T *p, const T &rhs) { new (p) T(rhs); }
-
-template <typename T>
-void construct(T *p, T &&rhs) {
-  new (p) T(std::move(rhs));
-}
-
-template <typename T>
-inline void destroy(T* p) noexcept { p->~T(); }
-
+/** helper func */
 template <
-      typename It,
+      typename It, typename Alloc,
       typename = std::enable_if<
           std::is_base_of<
               std::input_iterator_tag,
               typename
                   std::iterator_traits<It>::iterator_category>::value>>
-void destroy(It begin, It end) noexcept {
+void destroy(It begin, It end, Alloc alloc) noexcept {
   while (begin != end) {
-    destroy(&*begin++);
+    alloc.destroy(&*begin++);
   }
 }
 
-template <typename T>
-class VectorBuffer {
- public:
-  std::size_t sz_ = 0;
-  std::size_t cap_;
-  T* data_;
+template <typename T, typename Alloc = std::allocator<T>>
+struct VectorBuffer {
+ public: // important typedefs
+  using allocator_type = Alloc;
+  using value_type = T;
+  using reference = value_type&;
+  using const_reference = const value_type&;
+  using pointer = typename allocator_type::pointer;
+  using const_pointer = typename allocator_type::const_pointer;
+  using size_type = typename allocator_type::size_type;
+  using difference_type = typename allocator_type::difference_type;
 
- public:
-  VectorBuffer(std::size_t cap)
-      : data_(cap ? allocate<T>(cap)
-                  : nullptr),
+ public: // state
+  allocator_type alloc_;
+  size_type sz_ = 0;
+  size_type cap_;
+  pointer data_;
+
+ public: // constructors and destructor
+  VectorBuffer(size_type cap, const allocator_type& alloc = allocator_type())
+      : data_(cap ? alloc_.allocate(cap) : nullptr),
         cap_(cap) {}
 
   VectorBuffer(const VectorBuffer& other) = delete;
@@ -71,8 +65,8 @@ class VectorBuffer {
   }
 
   ~VectorBuffer() {
-    detail::destroy(data_, data_ + sz_);
-    ::operator delete(data_);
+    detail::destroy(data_, data_ + sz_, alloc_);
+    alloc_.deallocate(data_, cap_);
   }
 };
 
