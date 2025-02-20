@@ -121,13 +121,20 @@ class Vector : private detail::VectorBuffer<T> {
   using typename detail::VectorBuffer<T>::const_pointer;
 
  public: // constructors
-  explicit Vector(size_type sz = 0, const_reference val = value_type(),
+  explicit Vector(size_type sz, const_reference val,
                   const allocator_type& alloc = allocator_type())
       : detail::VectorBuffer<value_type>(sz, alloc) {
     while (sz_ < cap_) {
       pushBack(val);
     }
   }
+
+  explicit Vector(size_type sz = 0,
+                  const allocator_type& alloc = allocator_type())
+      : Vector(sz, value_type(), alloc) {}
+
+  explicit Vector(const allocator_type& alloc = allocator_type())
+      : Vector(0, value_type(), alloc) {}
 
   template <
       typename It,
@@ -158,7 +165,8 @@ class Vector : private detail::VectorBuffer<T> {
   Vector(const Vector& rhs)
       : detail::VectorBuffer<value_type>(rhs.sz_, rhs.alloc_) {
     while (sz_ < rhs.sz_) {
-      alloc_.construct(data_ + sz_, rhs.data_[sz_]);
+      std::allocator_traits<allocator_type>::construct(
+          alloc_, data_ + sz_, rhs.data_[sz_]);
       ++sz_;
     }
   }
@@ -196,7 +204,8 @@ class Vector : private detail::VectorBuffer<T> {
 
     detail::VectorBuffer<T> new_buf(new_cap, alloc_);
     while (new_buf.sz_ < sz_) {
-      alloc_.construct(new_buf.data_ + new_buf.sz_, data_[new_buf.sz_]);
+      std::allocator_traits<allocator_type>::construct(
+          alloc_, new_buf.data_ + new_buf.sz_, data_[new_buf.sz_]);
       ++new_buf.sz_;
     }
 
@@ -249,13 +258,19 @@ class Vector : private detail::VectorBuffer<T> {
     if (sz_ == cap_) {
       reserve(getNextCap(cap_));
     }
-    alloc_.construct(data_ + sz_, v);
+    std::allocator_traits<allocator_type>::construct(
+        alloc_, data_ + sz_, v);
     ++sz_;
   }
 
   void clear() noexcept {
-    detail::destroy(begin(), end());
+    detail::destroy(begin(), end(), alloc_);
     sz_ = 0;
+  }
+
+  void popBack() noexcept {
+    --sz_;
+    std::allocator_traits<allocator_type>::destroy(alloc_, data_ + sz_);
   }
 
  private:

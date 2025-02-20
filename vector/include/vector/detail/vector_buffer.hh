@@ -18,9 +18,9 @@ template <
               std::input_iterator_tag,
               typename
                   std::iterator_traits<It>::iterator_category>::value>>
-void destroy(It begin, It end, Alloc alloc) noexcept {
+void destroy(It begin, It end, Alloc& alloc) noexcept {
   while (begin != end) {
-    alloc.destroy(&*begin++);
+    std::allocator_traits<Alloc>::destroy(alloc, &*begin++);
   }
 }
 
@@ -44,7 +44,10 @@ struct VectorBuffer {
 
  public: // constructors and destructor
   VectorBuffer(size_type cap, const allocator_type& alloc = allocator_type())
-      : data_(cap ? alloc_.allocate(cap) : nullptr),
+      : alloc_(alloc),
+        data_(cap
+              ? std::allocator_traits<allocator_type>::allocate(alloc_, cap)
+              : nullptr),
         cap_(cap) {}
 
   VectorBuffer(const VectorBuffer& other) = delete;
@@ -66,7 +69,7 @@ struct VectorBuffer {
 
   ~VectorBuffer() {
     detail::destroy(data_, data_ + sz_, alloc_);
-    alloc_.deallocate(data_, cap_);
+    std::allocator_traits<allocator_type>::deallocate(alloc_, data_, cap_);
   }
 };
 
