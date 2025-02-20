@@ -77,6 +77,9 @@ class Matrix {
         cols_(cols),
         rows_(std::ceil(static_cast<double>(data_.size()) / cols)) {}
 
+  Matrix(size_type cols, std::initializer_list<value_type> ilist)
+      : Matrix(cols, ilist.begin(), ilist.end()) {}
+
   virtual ~Matrix() {}
 
  private:
