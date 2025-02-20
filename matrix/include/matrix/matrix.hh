@@ -27,15 +27,24 @@ template <
         std::is_same<
             decltype(std::declval<T>() / std::declval<T>()), T>::value>::type>
 class Matrix {
-  std::vector<T> data_;
-  std::size_t rows_;
-  std::size_t cols_;
+  using InternalContainer = typename std::vector<T>; /** stores matrix data */
 
  public:
-  using Iterator = typename std::vector<T>::iterator;
-  using ConstIterator = typename std::vector<T>::const_iterator;
-  using ReverseIterator = typename std::vector<T>::reverse_iterator;
-  using ConstReverseIterator = typename std::vector<T>::const_reverse_iterator;
+  using iterator = typename InternalContainer::iterator;
+  using const_iterator = typename InternalContainer::const_iterator;
+  using reverse_iterator = typename InternalContainer::reverse_iterator;
+  using const_reverse_iterator
+      = typename InternalContainer::const_reverse_iterator;
+  using value_type = typename InternalContainer::value_type;
+  using reference = typename InternalContainer::reference;
+  using const_reference = typename InternalContainer::const_reference;
+  using difference_type = typename InternalContainer::difference_type;
+  using size_type = typename InternalContainer::size_type;
+
+ private:
+  InternalContainer data_;
+  size_type rows_;
+  size_type cols_;
 
  public:
   /** Creates and fills matrix with given value */
@@ -66,12 +75,14 @@ class Matrix {
         cols_(cols),
         rows_(std::ceil(static_cast<double>(data_.size()) / cols)) {}
 
+  virtual ~Matrix() {}
+
  public:
-  Iterator operator[](std::size_t pos) noexcept {
+  auto operator[](size_type pos) noexcept {
     return data_.begin() + pos * cols_;
   }
 
-  ConstIterator operator[](std::size_t pos) const noexcept {
+  auto operator[](size_type pos) const noexcept {
     return data_.cbegin() + pos * cols_;
   }
 
@@ -88,8 +99,10 @@ class Matrix {
   auto rows() const noexcept { return rows_; }
   auto cols() const noexcept { return cols_; }
 
+  auto isSquare() const noexcept { return rows_ == cols_; }
+
   /** Creates eye matrix */
-  static Matrix eye(std::size_t n) {
+  static auto eye(size_type n) {
     Matrix m(n, n);
     for (std::size_t i = 0; i < m.rows(); ++i) {
       m[i][i] = static_cast<T>(1);
@@ -97,7 +110,7 @@ class Matrix {
     return m;
   }
 
-  bool swapRows(std::size_t a, std::size_t b) noexcept {
+  auto swapRows(size_type a, size_type b) noexcept {
     if (a == b) {
       return false;
     }
@@ -106,7 +119,7 @@ class Matrix {
     return true;
   }
 
-  void simplifyRows(std::size_t idx) {
+  auto simplifyRows(size_type idx) {
     auto i_offset = idx * cols_;
     for (auto j = idx + 1; j < rows_; ++j) {
       auto shift_j = j * cols_;
@@ -120,10 +133,9 @@ class Matrix {
     }
   }
 
-  T det() const {
-    // FIXME
-    if (rows_ != cols_) {
-      throw std::runtime_error("Not square matrix");
+  auto det() const {
+    if (!isSquare()) {
+      throw std::runtime_error("Matrix::det: square matrix required.");
     }
 
     auto mcopy(*this);
@@ -141,7 +153,7 @@ class Matrix {
       }
 
       if (numeric_traits::isClose<double>(mcopy[i][i], 0)) {
-        return 0;
+        return static_cast<T>(0);
       }
       mcopy.simplifyRows(i);
     }
