@@ -63,7 +63,7 @@ class Matrix {
                   std::iterator_traits<It>::iterator_category>::value>>
   Matrix(std::size_t rows, std::size_t cols, It begin, It end)
       : rows_(rows), cols_(cols),
-        data_(begin, std::min(end, begin + rows * cols)) {}
+        data_(rows * cols) { std::copy(begin, end, data_.begin()); }
 
   template <
       typename It,
