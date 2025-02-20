@@ -8,6 +8,17 @@ find_package(GTest REQUIRED)
 
 include(GoogleTest)
 
+function(TEST_LIBRARY NAME)
+  file(GLOB TEST_SRCS tests/*.cc)
+  foreach(TEST_SRC ${TEST_SRCS})
+    get_filename_component(TEST_NAME ${TEST_SRC} NAME_WE)
+    add_executable(${TEST_NAME} ${TEST_SRC})
+    target_link_libraries(${TEST_NAME} ${NAME} GTest::gtest_main)
+    gtest_discover_tests(${TEST_NAME})
+  endforeach()
+endfunction()
+
+add_subdirectory(vector)
 add_subdirectory(matrix)
 add_subdirectory(driver)
 

@@ -7,18 +7,34 @@
 #include <cstddef>
 #include <new>
 
+/** FOR INTERNAL PURPOSES ONLY. DO NOT USE IN USER PROGRAM */
 namespace vector::detail {
 
-template <typename T> void construct(T *p, const T &rhs) { new (p) T(rhs); }
-template <typename T> void construct(T *p, T &&rhs) {
+// TODO: завернуть бы в аллокатор
+template <typename T>
+T* allocate(std::size_t n) {
+  return static_cast<T*>(::operator new(n * sizeof(T)));
+}
+
+template <typename T>
+void construct(T *p, const T &rhs) { new (p) T(rhs); }
+
+template <typename T>
+void construct(T *p, T &&rhs) {
   new (p) T(std::move(rhs));
 }
 
 template <typename T>
-inline void destroy(T* p) { p->~T(); }
+inline void destroy(T* p) noexcept { p->~T(); }
 
-template <typename It>
-void destroy(It begin, It end) {
+template <
+      typename It,
+      typename = std::enable_if<
+          std::is_base_of<
+              std::input_iterator_tag,
+              typename
+                  std::iterator_traits<It>::iterator_category>::value>>
+void destroy(It begin, It end) noexcept {
   while (begin != end) {
     destroy(&*begin++);
   }
@@ -26,14 +42,14 @@ void destroy(It begin, It end) {
 
 template <typename T>
 class VectorBuffer {
- protected:
+ public:
   std::size_t sz_ = 0;
   std::size_t cap_;
   T* data_;
 
- protected:
+ public:
   VectorBuffer(std::size_t cap)
-      : data_(cap ? static_cast<T*>(::operator new(cap * sizeof(T)))
+      : data_(cap ? allocate<T>(cap)
                   : nullptr),
         cap_(cap) {}
 
@@ -55,7 +71,7 @@ class VectorBuffer {
   }
 
   ~VectorBuffer() {
-    destroy(data_, data_ + sz_);
+    detail::destroy(data_, data_ + sz_);
     ::operator delete(data_);
   }
 };

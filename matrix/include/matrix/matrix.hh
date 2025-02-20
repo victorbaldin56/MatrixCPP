@@ -8,7 +8,8 @@
 #include <cmath>
 #include <stdexcept>
 #include <type_traits>
-#include <vector>
+
+#include "vector/vector.hh"
 
 #include "numeric_traits.hh"
 
@@ -33,24 +34,24 @@ class Matrix {
   // 1. Positive attitude to cache effects.
   // 2. Less dynamic memory allocations.
   // 3. Less indirections.
-  using InternalContainer = typename std::vector<T>; /** stores matrix data */
+  using ContigiousContainer = typename vector::Vector<T>; /** stores matrix data */
 
  public: // member types
-  using iterator = typename InternalContainer::iterator;
-  using const_iterator = typename InternalContainer::const_iterator;
-  using reverse_iterator = typename InternalContainer::reverse_iterator;
+  using iterator = typename ContigiousContainer::iterator;
+  using const_iterator = typename ContigiousContainer::const_iterator;
+  using reverse_iterator = typename ContigiousContainer::reverse_iterator;
   using const_reverse_iterator
-      = typename InternalContainer::const_reverse_iterator;
-  using value_type = typename InternalContainer::value_type;
-  using reference = typename InternalContainer::reference;
-  using const_reference = typename InternalContainer::const_reference;
-  using pointer = typename InternalContainer::pointer;
-  using difference_type = typename InternalContainer::difference_type;
-  using size_type = typename InternalContainer::size_type;
+      = typename ContigiousContainer::const_reverse_iterator;
+  using value_type = typename ContigiousContainer::value_type;
+  using reference = typename ContigiousContainer::reference;
+  using const_reference = typename ContigiousContainer::const_reference;
+  using pointer = typename ContigiousContainer::pointer;
+  using difference_type = typename ContigiousContainer::difference_type;
+  using size_type = typename ContigiousContainer::size_type;
 
  public: // constructors
   /** Creates and fills matrix with given value */
-  Matrix(size_type rows, size_type cols, T val = T())
+  Matrix(size_type rows, size_type cols, const_reference val = value_type())
       : data_(rows * cols, val), rows_(rows), cols_(cols) {}
 
   /** Creates matrix from given sequence */
@@ -124,6 +125,8 @@ class Matrix {
 
   size_type rows() const noexcept { return rows_; }
   size_type cols() const noexcept { return cols_; }
+  pointer data() noexcept { return data_.data(); }
+  const pointer data() const noexcept { return data_.data(); }
 
   bool isSquare() const noexcept { return rows_ == cols_; }
 
@@ -225,7 +228,7 @@ class Matrix {
   }
 
  private:
-  InternalContainer data_;
+  ContigiousContainer data_;
   size_type rows_;
   size_type cols_;
 };
