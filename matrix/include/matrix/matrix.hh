@@ -8,7 +8,8 @@
 #include <cmath>
 #include <stdexcept>
 #include <type_traits>
-#include <vector>
+
+#include "vector/vector.hh"
 
 #include "numeric_traits.hh"
 
@@ -33,7 +34,7 @@ class Matrix {
   // 1. Positive attitude to cache effects.
   // 2. Less dynamic memory allocations.
   // 3. Less indirections.
-  using ContigiousContainer = typename std::vector<T>; /** stores matrix data */
+  using ContigiousContainer = typename vector::Vector<T>; /** stores matrix data */
 
  public: // member types
   using iterator = typename ContigiousContainer::iterator;

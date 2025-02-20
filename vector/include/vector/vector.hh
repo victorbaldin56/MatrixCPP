@@ -126,6 +126,8 @@ class Vector : private detail::VectorBuffer<T> {
       return *this;
     }
 
+    reference operator[](size_type pos) { return ptr_[pos]; }
+
     bool operator==(const IteratorBase& other) const {
       return ptr_ == other.ptr_;
     }
@@ -205,6 +207,8 @@ class Vector : private detail::VectorBuffer<T> {
       ptr_ -= n;
       return *this;
     }
+
+    reference operator[](size_type pos) { return ptr_[-pos]; }
 
     bool operator==(const ReverseIteratorBase& other) const {
       return ptr_ == other.ptr_;
