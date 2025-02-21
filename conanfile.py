@@ -20,7 +20,6 @@ class MatrixRecipe(ConanFile):
   def build(self):
     cmake = CMake(self)
     cmake.definitions["BUILD_TESTING"] = self.options.testing
-    os.environ['ENABLE_TESTING'] = self.options.testing
 
     cmake.configure()
     cmake.build()
