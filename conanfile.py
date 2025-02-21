@@ -1,5 +1,5 @@
 from conan import ConanFile
-from conan.tools.cmake import CMake
+from conan.tools.cmake import CMake, CMakeToolchain
 
 import pip
 import os
@@ -8,14 +8,10 @@ class MatrixRecipe(ConanFile):
   name = "matrix"
   version = "1.0"
   settings = "os", "compiler", "build_type", "arch"
+  generators = "CMakeToolchain", "CMakeDeps"
   options = {"testing": [True, False]}
   default_options = {"testing": False}
-
-  # Dependencies only needed for testing
   test_requires = "gtest/1.15.0"
-
-  # Python
-  # python_requires = "numpy/2.2.3"
 
   def requirements(self):
     if (self.options.testing):
