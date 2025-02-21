@@ -124,7 +124,7 @@ class Vector : private detail::VectorBuffer<T, Alloc> {
  public: // constructors
   explicit Vector(size_type sz, const_reference val,
                   const allocator_type& alloc = allocator_type())
-      : detail::VectorBuffer<value_type>(sz, alloc) {
+      : detail::VectorBuffer<value_type, allocator_type>(sz, alloc) {
     while (sz_ < cap_) {
       pushBack(val);
     }
