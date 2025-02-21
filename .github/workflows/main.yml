@@ -49,7 +49,7 @@ jobs:
 
     - name: Configure CMake
       run: >
-        cmake . -B build --toolchain=conan_toolchain.cmake
+        cmake . -B build --preset conan-${{ profile }}
 
     - name: Build
       run:
