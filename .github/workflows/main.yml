@@ -39,13 +39,14 @@ jobs:
            pip install conan==2.12.1;
 
     - name: Installing conan requirements
-      run: conan profile detect --force;
-           conan install . \
-               --profile=.conan/profiles/${{ matrix.config.profile }} \
-               --output-folder=build \
-               --build=missing \
-               --options testing=${{ matrix.config.testing }} \
-               --settings compiler=${{ matrix.config.compiler }}
+      run: >
+        conan profile detect --force;
+        conan install .
+            --profile=.conan/profiles/${{ matrix.config.profile }}
+            --output-folder=build
+            --build=missing
+            --options testing=${{ matrix.config.testing }}
+            --settings compiler=${{ matrix.config.compiler }}
 
     - name: Configure CMake
       run: >
