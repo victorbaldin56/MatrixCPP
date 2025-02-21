@@ -15,8 +15,8 @@ jobs:
 
       matrix:
         config:
-          - { os: ubuntu-22.04, cxx_compiler: g++, profile: debug, testing: True }
-          - { os: ubuntu-22.04, cxx_compiler: g++, profile: release, testing: False }
+          - { os: ubuntu-22.04, compiler: gcc, profile: debug, testing: True }
+          - { os: ubuntu-22.04, compiler: gcc, profile: release, testing: False }
 
     steps:
     - uses: actions/checkout@v4
@@ -42,7 +42,7 @@ jobs:
       run: conan profile detect --force;
            conan install . \
                -pr .conan/profiles/${{ matrix.config.profile }} \
-               -s compiler=${{ matrix.config.cxx_compiler }} \
+               -s compiler=${{ matrix.config.compiler }} \
                --install-folder=build \
                --build=missing \
                -o testing=${{ matrix.config.testing }}
