@@ -10,10 +10,6 @@ class MatrixRecipe(ConanFile):
   options = {"testing": [True, False]}
   default_options = {"testing": False}
 
-  def configure(self):
-    if self.settings.build_type == "Debug":
-      self.options.testing = True
-
   def requirements(self):
     if self.options.testing:
       pip.main(['install', 'numpy==2.2.3'])

@@ -1,8 +1,10 @@
 include(default)
 
 [settings]
-testing=True
 build_type=Debug
+
+[options]
+testing=True
 
 [conf]
 tools.build:cxxflags=["-fsanitize=address,leak,undefined"]
