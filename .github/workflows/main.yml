@@ -42,7 +42,7 @@ jobs:
       run: conan profile detect --force;
            conan install . \
                --profile=.conan/profiles/${{ matrix.config.profile }} \
-               --install-folder=build \
+               --output-folder=build \
                --build=missing \
                --options testing=${{ matrix.config.testing }} \
                --settings compiler=${{ matrix.config.compiler }}
