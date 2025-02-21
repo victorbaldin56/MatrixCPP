@@ -40,7 +40,7 @@ jobs:
 
     - name: Installing packages
       run: sudo apt-get -y update &&
-           sudo apt-get install python3 pip g++-12 clang++-17
+           sudo apt-get install python3 pip g++-12
 
     - name: Creating and setting venv
       if: ${{ matrix.config.testing }}
@@ -60,7 +60,7 @@ jobs:
         -S ${{ github.workspace }}
         ${{ matrix.config.asan_preset_flag }}
         -DCMAKE_CXX_COMPILER=${{ matrix.config.cxx_compiler }}
-        -DCMAKE_cmake_toolchain_file=${{ cmake_toolchain_file }}
+        -DCMAKE_cmake_toolchain_file=${{ matrix.config.cmake_toolchain_file }}
         -DBUILD_TESTING=${{ matrix.config.testing }}
 
     - name: Build
