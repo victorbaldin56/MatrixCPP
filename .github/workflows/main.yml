@@ -25,8 +25,8 @@ jobs:
       matrix:
         config:
           - { os: ubuntu-22.04, cxx_compiler: g++, build_type: Debug, asan_preset_flag: "--preset gcc_debug_san", testing: true, cmake_toolchain_file: "conan_toolchain.cmake" }
-          - { os: ubuntu-22.04, cxx_compiler: g++, build_type: Release, asan_preset_flag: "", testing: true, cmake_toolchain_file: "conan_toolchain.cmake" }
-          - { os: ubuntu-22.04, cxx_compiler: g++, build_type: Release, asan_preset_flag: "", testing: false, cmake_toolchain_file: "" }
+          # - { os: ubuntu-22.04, cxx_compiler: g++, build_type: Release, asan_preset_flag: "", testing: true, cmake_toolchain_file: "conan_toolchain.cmake" }
+          - { os: ubuntu-22.04, cxx_compiler: g++, build_type: Release }
 
     steps:
     - uses: actions/checkout@v4
