@@ -11,8 +11,6 @@ class MatrixRecipe(ConanFile):
   default_options = {"testing": False}
 
   def requirements(self):
-    if self.settings.build_type == "Debug":
-      self.options.testing = True
     if self.options.testing:
       pip.main(['install', 'numpy==2.2.3'])
       self.test_requires("gtest/1.15.0")
