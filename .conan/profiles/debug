@@ -1,6 +1,7 @@
 include(default)
 
 [settings]
+testing=True
 build_type=Debug
 
 [conf]
