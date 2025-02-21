@@ -53,7 +53,7 @@ class Matrix {
 
  public: // constructors
   /** Creates and fills matrix with given value */
-  Matrix(size_type rows, size_type cols, const_reference val = value_type(),
+  Matrix(size_type rows = 0, size_type cols = 0, const_reference val = value_type(),
          const allocator_type& alloc = allocator_type())
       : data_(rows * cols, val, alloc), rows_(rows), cols_(cols) {}
 
@@ -83,8 +83,9 @@ class Matrix {
         cols_(cols),
         rows_(std::ceil(static_cast<double>(data_.size()) / cols)) {}
 
-  Matrix(size_type cols, std::initializer_list<value_type> ilist)
-      : Matrix(cols, ilist.begin(), ilist.end()) {}
+  Matrix(size_type cols, std::initializer_list<value_type> ilist,
+         const allocator_type& alloc = allocator_type())
+      : Matrix(cols, ilist.begin(), ilist.end(), alloc) {}
 
   virtual ~Matrix() {}
 
@@ -183,6 +184,10 @@ class Matrix {
   value_type det() const {
     if (!isSquare()) {
       throw std::runtime_error("Matrix::det: rows_ != cols_");
+    }
+
+    if (!rows_ || !cols_) {
+      throw std::runtime_error("Matrix:det: matrix size must be > 0");
     }
 
     auto mcopy(*this);

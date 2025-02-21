@@ -15,6 +15,16 @@ TEST(det, eye) {
   ASSERT_DOUBLE_EQ(m.det(), 1);
 }
 
+TEST(det, zero_size) {
+  matrix::Matrix<int> m; // matrix with size 0
+  try {
+    m.det();
+  } catch (std::runtime_error& ex) {
+    return;
+  }
+  ASSERT_TRUE(0);
+}
+
 int main(int argc, char** argv) {
   ::testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
