@@ -23,23 +23,23 @@ After installing dependencies listed above, follow these steps:
 
 1. Cloning.
 
-```sh
-git clone https://github.com/victorbaldin56/MatrixCPP.git
-cd MatrixCPP
-```
+   ```sh
+   git clone https://github.com/victorbaldin56/MatrixCPP.git
+   cd MatrixCPP
+   ```
 
 1. Configuring build.
 
-```sh
-cd build
-cmake .. -DCMAKE_BUILD_TYPE=Release
-```
+   ```sh
+   cd build
+   cmake .. -DCMAKE_BUILD_TYPE=Release
+   ```
 
 1. Building.
 
-```sh
-cmake --build . -j
-```
+   ```sh
+   cmake --build . -j
+   ```
 
 ## Integration into existing CMake project
 
