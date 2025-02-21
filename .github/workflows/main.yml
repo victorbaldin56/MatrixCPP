@@ -60,7 +60,7 @@ jobs:
         -S ${{ github.workspace }}
         ${{ matrix.config.asan_preset_flag }}
         -DCMAKE_CXX_COMPILER=${{ matrix.config.cxx_compiler }}
-        -DCMAKE_cmake_toolchain_file=${{ matrix.config.cmake_toolchain_file }}
+        --toolchain=${{ matrix.config.cmake_toolchain_file }}
         -DBUILD_TESTING=${{ matrix.config.testing }}
 
     - name: Build
