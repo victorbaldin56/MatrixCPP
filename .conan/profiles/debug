@@ -1,8 +1,5 @@
 [settings]
 build_type=Debug
 
-[options]
-matrix:testing=True
-
 [conf]
 tools.build:cxxflags=["-fsanitize=address,leak,undefined"]
