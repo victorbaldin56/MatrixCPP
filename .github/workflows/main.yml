@@ -43,7 +43,7 @@ jobs:
            conan install . \
                -pr .conan/profiles/${{ matrix.config.profile }} \
                -s compiler=${{ matrix.config.cxx_compiler }} \
-               --output-folder=build \
+               --install-folder=build \
                --build=missing \
                -o testing=${{ matrix.config.testing }}
 
