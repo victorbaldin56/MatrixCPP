@@ -40,8 +40,9 @@ jobs:
 
     - name: Installing conan requirements
       run: conan profile detect --force;
-           conan install . -s compiler=${{ matrix.config.compiler }} \
-               --profile=.conan/profiles/${{ matrix.config.profile }}
+           conan install . \
+               --profile=.conan/profiles/${{ matrix.config.profile }} \
+               --settings compiler=${{ matrix.config.compiler }} \
                --output-folder=build \
                --build=missing \
                --options testing=${{ matrix.config.testing }}
