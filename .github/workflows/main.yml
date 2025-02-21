@@ -41,11 +41,11 @@ jobs:
     - name: Installing conan requirements
       run: conan profile detect --force;
            conan install . \
-               -pr .conan/profiles/${{ matrix.config.profile }} \
-               -s compiler=${{ matrix.config.compiler }} \
+               --profile=.conan/profiles/${{ matrix.config.profile }} \
                --install-folder=build \
                --build=missing \
-               -o testing=${{ matrix.config.testing }}
+               --options testing=${{ matrix.config.testing }} \
+               --settings compiler=${{ matrix.config.compiler }}
 
     - name: Configure CMake
       run: >
