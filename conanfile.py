@@ -9,11 +9,13 @@ class MatrixRecipe(ConanFile):
   generators = "CMakeDeps"
   options = {"testing": [True, False]}
   default_options = {"testing": False}
-  test_requires = "gtest/1.15.0"
 
   def requirements(self):
+    if self.settings.build_type == "Debug":
+      self.options.testing = True
     if self.options.testing:
       pip.main(['install', 'numpy==2.2.3'])
+      self.test_requires("gtest/1.15.0")
 
   def generate(self):
     # Customize CMakeToolchain in the generate() method
