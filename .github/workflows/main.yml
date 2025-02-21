@@ -26,12 +26,7 @@ jobs:
       id: strings
       shell: bash
       run: |
-        echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT" &&
-        if [ "${{ matrix.testing_mode }}" == "testing_on" ]; then
-            echo "TESTING_OPTION=True" >> $GITHUB_ENV
-          else
-            echo "TESTING_OPTION=False" >> $GITHUB_ENV
-        fi
+        echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
 
     - name: Installing system packages
       run: sudo apt-get -y update &&
