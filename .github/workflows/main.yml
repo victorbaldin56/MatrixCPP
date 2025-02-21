@@ -56,5 +56,5 @@ jobs:
         cmake --build build -j
 
     - name: Test
-      continue-on-error: true
+    - if: ${{ matrix.config.profile == 'debug' }}
       run: ctest --output-on-failure --test-dir build
