@@ -32,17 +32,18 @@ jobs:
       run: sudo apt-get -y update &&
            sudo apt-get install python3 pip g++-12
 
-    - name: Installing conan
+    - name: Installing conan and setting venv
       run: python3 -m venv .venv;
            source .venv/bin/activate;
            echo PATH=$PATH >> $GITHUB_ENV;
            pip install conan;
+
+    - name: Installing conan requirements
            conan profile detect --force;
-           conan install . -s
+           conan install . -s compiler=${{ matrix.config.compiler }} \
                --profile=.conan/profiles/${{ matrix.config.profile }}
                --output-folder=build \
                --build=missing \
-               compiler=${{ matrix.config.compiler }} \
                --options testing=${{ matrix.config.testing }}
 
     - name: Configure CMake
