@@ -24,9 +24,9 @@ jobs:
       # To add more build types (Release, Debug, RelWithDebInfo, etc.) customize the build_type list.
       matrix:
         config:
-          - { build_type: Debug, asan_preset_flag: "--preset gcc_debug_san", testing: true, cmake_toolchain_file: "conan_toolchain.cmake" }
-          - { build_type: Release, asan_preset_flag: "", testing: true, cmake_toolchain_file: "conan_toolchain.cmake" }
-          - { build_type: Release, asan_preset_flag: "", testing: false, cmake_toolchain_file: "" }
+          - { os: ubuntu-22.04, build_type: Debug, asan_preset_flag: "--preset gcc_debug_san", testing: true, cmake_toolchain_file: "conan_toolchain.cmake" }
+          - { os: ubuntu-22.04, build_type: Release, asan_preset_flag: "", testing: true, cmake_toolchain_file: "conan_toolchain.cmake" }
+          - { os: ubuntu-22.04, build_type: Release, asan_preset_flag: "", testing: false, cmake_toolchain_file: "" }
 
     steps:
     - uses: actions/checkout@v4
