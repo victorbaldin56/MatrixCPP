@@ -57,4 +57,4 @@ jobs:
 
     - name: Test
       if: ${{ matrix.config.profile == 'debug' }}
-      run: ctest --output-on-failure --test-dir build
+      run: ctest --output-on-failure --test-dir build --no-tests=error
