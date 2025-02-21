@@ -15,8 +15,8 @@ jobs:
 
       matrix:
         config:
-          - { os: ubuntu-22.04, compiler: gcc, profile: debug, testing: True }
-          - { os: ubuntu-22.04, compiler: gcc, profile: release, testing: False }
+          - { os: ubuntu-22.04, compiler: gcc, profile: debug, testing: testing_on }
+          - { os: ubuntu-22.04, compiler: gcc, profile: release, testing: testing_off }
 
     steps:
     - uses: actions/checkout@v4
@@ -26,7 +26,12 @@ jobs:
       id: strings
       shell: bash
       run: |
-        echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
+        echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT" &&
+        if [ "${{ matrix.testing_mode }}" == "testing_on" ]; then
+            echo "TESTING_OPTION=True" >> $GITHUB_ENV
+          else
+            echo "TESTING_OPTION=False" >> $GITHUB_ENV
+        fi
 
     - name: Installing system packages
       run: sudo apt-get -y update &&
@@ -45,7 +50,7 @@ jobs:
         --profile=.conan/profiles/${{ matrix.config.profile }}
         --output-folder=build
         --build=missing
-        --options testing=${{ matrix.config.testing }}
+        --options testing=${{ env.TESTING_OPTION }}
         --settings compiler=${{ matrix.config.compiler }}
 
     - name: Configure CMake
@@ -57,5 +62,5 @@ jobs:
         cmake --build build -j
 
     - name: Test
-      if: ${{ matrix.config.testing }}
+      if: ${{ matrix.config.testing == 'testing_on' }}
       run: ctest --output-on-failure --test-dir build
