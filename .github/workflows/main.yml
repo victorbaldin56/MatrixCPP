@@ -49,12 +49,12 @@ jobs:
 
     - name: Configure CMake
       run: >
-        cmake . -B build --toolchain=conan_toolchain.cmake
+        cmake . -B build --preset conan-${{ matrix.config.profile }}
 
     - name: Build
       run:
         cmake --build build -j
 
     - name: Test
-      continue-on-error: true
-      run: ctest --output-on-failure --test-dir build
+      if: ${{ matrix.config.profile == 'debug' }}
+      run: ctest --output-on-failure --test-dir build --no-tests=error
