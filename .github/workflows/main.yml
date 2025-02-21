@@ -39,7 +39,7 @@ jobs:
            pip install conan;
 
     - name: Installing conan requirements
-           conan profile detect --force;
+      run: conan profile detect --force;
            conan install . -s compiler=${{ matrix.config.compiler }} \
                --profile=.conan/profiles/${{ matrix.config.profile }}
                --output-folder=build \
