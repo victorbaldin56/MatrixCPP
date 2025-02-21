@@ -1,5 +1,5 @@
 # MatrixCPP
-Educational project from K. Vladimirov's course.
+Educational project from K. Vladimirov's course at MIPT.
 C++ general matrix implementation using my own vector written almost from scratch.
 
 # Dependencies
@@ -20,28 +20,38 @@ After installing dependencies listed above, follow these steps:
 git clone https://github.com/victorbaldin56/MatrixCPP.git
 cd MatrixCPP
 ```
-2. Creating virtual environment and installing Conan with additional packages.
-```sh
-python3 -m venv .venv;
-source .venv/bin/activate;
-pip install -r requirements.txt;
-conan profile detect --force;
-conan install . -s build_type=Release --output-folder=build --build=missing
-```
 
-3. Configuring build.
+2. Configuring build.
 ```sh
 cd build
 cmake .. -DCMAKE_BUILD_TYPE=Release
 ```
 
-4. Building.
+3. Building.
 ```sh
 cmake --build . -j
+```
+
+## Integration into existing CMake project
+If you want to use MatrixCPP as just header-only library
+you, write in your `CMakeLists.txt` the following:
+```cmake
+...
+add_subdirectory(MatrixCPP)
+target_link_libraries(${YOUR_TARGET} matrix)
+...
 ```
 
 ## Usage
 To view docs for source code, run
 ```sh
 doxygen
+```
+
+Also there is an example program called `driver` computing determinant of
+input matrix. For instance:
+```sh
+$ ./build/driver/driver
+2 1 0 0 1
+1
 ```
