@@ -49,7 +49,7 @@ jobs:
 
     - name: Configure CMake
       run: >
-        cmake . -B build --preset conan-${{ profile }}
+        cmake . -B build --preset conan-${{ matrix.config.profile }}
 
     - name: Build
       run:
