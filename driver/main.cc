@@ -19,8 +19,10 @@ int main() try {
   std::cin >> n;
   checkInputStream(std::cin);
   matrix::Matrix<double> m(n, n);
-  std::copy_n(std::istream_iterator<double>(std::cin), n * n, m.begin());
-  checkInputStream(std::cin);
+  if (n != 0) {
+    std::copy_n(std::istream_iterator<double>(std::cin), n * n, m.begin());
+    checkInputStream(std::cin);
+  }
   std::cout << m.det() << std::endl;
   return 0;
 } catch (std::exception& ex) {
