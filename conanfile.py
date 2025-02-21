@@ -1,8 +1,6 @@
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeToolchain
-
 import pip
-import os
 
 class MatrixRecipe(ConanFile):
   name = "matrix"
