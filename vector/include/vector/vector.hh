@@ -13,13 +13,14 @@ namespace vector {
 
 /** As just std::vector, no virtual destructors. */
 template <typename T, typename Alloc = std::allocator<T>>
-class Vector : private detail::VectorBuffer<T> {
+class Vector : private detail::VectorBuffer<T, Alloc> {
  private:
   /** iterator to the vector */
   template <bool IsConst>
   struct IteratorBase {
     using iterator_category = std::random_access_iterator_tag;
-    using difference_type = typename detail::VectorBuffer<T, Alloc>::difference_type;
+    using difference_type
+        = typename detail::VectorBuffer<T, Alloc>::difference_type;
     using size_type = typename detail::VectorBuffer<T, Alloc>::size_type;
     using value_type = T;
     using pointer
@@ -111,14 +112,14 @@ class Vector : private detail::VectorBuffer<T> {
   using reverse_iterator = std::reverse_iterator<iterator>;
   using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
-  using typename detail::VectorBuffer<T>::allocator_type;
-  using typename detail::VectorBuffer<T>::size_type;
-  using typename detail::VectorBuffer<T>::difference_type;
-  using typename detail::VectorBuffer<T>::value_type;
-  using typename detail::VectorBuffer<T>::reference;
-  using typename detail::VectorBuffer<T>::const_reference;
-  using typename detail::VectorBuffer<T>::pointer;
-  using typename detail::VectorBuffer<T>::const_pointer;
+  using typename detail::VectorBuffer<T, Alloc>::allocator_type;
+  using typename detail::VectorBuffer<T, Alloc>::size_type;
+  using typename detail::VectorBuffer<T, Alloc>::difference_type;
+  using typename detail::VectorBuffer<T, Alloc>::value_type;
+  using typename detail::VectorBuffer<T, Alloc>::reference;
+  using typename detail::VectorBuffer<T, Alloc>::const_reference;
+  using typename detail::VectorBuffer<T, Alloc>::pointer;
+  using typename detail::VectorBuffer<T, Alloc>::const_pointer;
 
  public: // constructors
   explicit Vector(size_type sz, const_reference val,
@@ -202,7 +203,7 @@ class Vector : private detail::VectorBuffer<T> {
       return;
     }
 
-    detail::VectorBuffer<T> new_buf(new_cap, alloc_);
+    detail::VectorBuffer<T, Alloc> new_buf(new_cap, alloc_);
     while (new_buf.sz_ < sz_) {
       std::allocator_traits<allocator_type>::construct(
           alloc_, new_buf.data_ + new_buf.sz_, data_[new_buf.sz_]);
@@ -279,10 +280,10 @@ class Vector : private detail::VectorBuffer<T> {
   }
 
  private:
-  using detail::VectorBuffer<T>::alloc_;
-  using detail::VectorBuffer<T>::sz_;
-  using detail::VectorBuffer<T>::cap_;
-  using detail::VectorBuffer<T>::data_;
+  using detail::VectorBuffer<T, Alloc>::alloc_;
+  using detail::VectorBuffer<T, Alloc>::sz_;
+  using detail::VectorBuffer<T, Alloc>::cap_;
+  using detail::VectorBuffer<T, Alloc>::data_;
 };
 
 } // namespace vector
