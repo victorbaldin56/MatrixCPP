@@ -21,21 +21,40 @@ Optional:
 
 After installing dependencies listed above, follow these steps:
 
-1. Cloning.
+1. Clone:
 
    ```sh
    git clone https://github.com/victorbaldin56/MatrixCPP.git
    cd MatrixCPP
    ```
 
-1. Configuring build.
+1. Create virtual environment for Python:
 
    ```sh
-   cd build
-   cmake .. -DCMAKE_BUILD_TYPE=Release
+   python3 -m venv .venv
+   source .venv/bin/activate
    ```
 
-1. Building.
+1. Install Conan:
+
+   ```sh
+   pip3 install conan
+   conan profile detect --force
+   ```
+
+1. Install Conan requirements and toolchain:
+
+   ```sh
+   conan install . --output-folder=build --build=missing
+   ```
+
+1. Configure CMake:
+
+   ```sh
+   cmake .. --preset conan-release
+   ```
+
+1. Build:
 
    ```sh
    cmake --build . -j
