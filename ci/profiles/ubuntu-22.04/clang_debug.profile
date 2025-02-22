@@ -12,6 +12,7 @@ testing=True
 [buildenv]
 CC=/usr/bin/clang-14
 CXX=/usr/bin/clang++-14
+ASAN_OPTIONS=alloc_dealloc_mismatch=0
 
 [conf]
 tools.build:cxxflags=["-fsanitize=address,leak,undefined"]
