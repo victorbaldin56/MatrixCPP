@@ -51,6 +51,7 @@ After installing dependencies listed above, follow these steps:
 1. Configure CMake:
 
    ```sh
+   cd build
    cmake .. --preset conan-release
    ```
 
