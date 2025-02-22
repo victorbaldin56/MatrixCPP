@@ -3,7 +3,7 @@ arch=x86_64
 os=Linux
 compiler=clang
 compiler.version=14
-compiler.libcxx=libc++
+compiler.libcxx=libstdc++11
 build_type=Debug
 
 [options]
@@ -12,7 +12,6 @@ testing=True
 [buildenv]
 CC=/usr/bin/clang-14
 CXX=/usr/bin/clang++-14
-ASAN_OPTIONS=alloc_dealloc_mismatch=0
 
 [conf]
 tools.build:cxxflags=["-fsanitize=address,leak,undefined"]
