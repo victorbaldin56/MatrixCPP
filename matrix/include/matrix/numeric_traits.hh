@@ -11,6 +11,14 @@ inline T epsilon() {
 }
 
 template <typename T>
-inline bool isClose(T a, T b) { return std::abs(a - b) <= epsilon<T>(); }
+inline T relTolerance() {
+  return std::numeric_limits<T>::is_exact ? 1e-5 : 0;
+}
+
+template <typename T>
+inline bool isClose(const T& a, const T& b,
+                    const T& rel_tol = relTolerance<T>()) {
+  return std::abs(a - b) <= rel_tol * std::max(std::abs(a), std::abs(b));
+}
 
 } // numeric_traits
