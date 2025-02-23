@@ -192,7 +192,7 @@ class Matrix {
 
     auto mcopy(*this);
     auto sign = 1;
-    for (auto i = 0; i < cols_; ++i) {
+    for (std::size_t i = 0; i < cols_; ++i) {
       auto pivot = i;
       for (auto j = i + 1; j < rows_; ++j) {
         if (std::abs(mcopy[j][i]) > std::abs(mcopy[pivot][i])) {

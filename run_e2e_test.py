@@ -2,9 +2,9 @@ import os
 import numpy as np
 import subprocess
 
-MIN_ELEM = 0.8
-MAX_ELEM = 1.3
-ITERS = 5
+MIN_ELEM = 0.9
+MAX_ELEM = 1.15
+ITERS = 3
 
 def shuffleRows(matrix):
   """Applies basic transformations to matrix keeping its determinant."""

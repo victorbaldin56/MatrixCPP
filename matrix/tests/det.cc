@@ -2,6 +2,10 @@
 
 #include "matrix/matrix.hh"
 
+TEST(det, integer_matrix) {
+
+}
+
 TEST(det, simple) {
   std::vector<double> v{1,  2, 3,
                         4,  5, 6,
