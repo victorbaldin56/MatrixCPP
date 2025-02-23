@@ -7,7 +7,7 @@ MIN_ELEM = 0.1
 MAX_ELEM = 1
 ITERS = 5
 
-def mixMatrix(matrix):
+def randomizeMatrix(matrix):
   """Applies basic transformations to matrix keeping its determinant."""
   n = matrix.shape[0]
 
@@ -16,8 +16,8 @@ def mixMatrix(matrix):
 
   # Randomize the lower triangular part (L) and upper triangular part (U)
   # while preserving the diagonal elements (which determine the determinant)
-  random_L = np.tril(np.random.rand(n, n), k=-1) + np.eye(n)  # Random lower triangular with 1s on diagonal
-  random_U = np.triu(np.random.rand(n, n), k=0)  # Random upper triangular
+  random_L = np.tril(np.random.uniform(MIN_ELEM, MAX_ELEM, (n, n)), k=-1) + np.eye(n)  # Random lower triangular with 1s on diagonal
+  random_U = np.triu(np.random.uniform(MIN_ELEM, MAX_ELEM, (n, n)), k=0)  # Random upper triangular
 
   # Reconstruct the matrix
   randomized_matrix = P @ random_L @ random_U
@@ -27,7 +27,7 @@ def mixMatrix(matrix):
 def generateRandomMatrix(size):
   matrix = np.random.uniform(MIN_ELEM, MAX_ELEM, (size, size))
   matrix = np.triu(matrix) # because of overflows occurring with common matrices
-  return mixMatrix(matrix)
+  return randomizeMatrix(matrix)
 
 def getDeterminantFromNumPy(matrix):
   """Computes the determinant using NumPy."""
