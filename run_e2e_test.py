@@ -9,7 +9,18 @@ ITERS = 5
 
 def randomizeMatrix(matrix):
   """Applies basic transformations to matrix keeping its determinant."""
-  return matrix
+  n = matrix.shape[0]
+  for i in range(n):
+    row1 = np.random.randint(0, n - 1)
+    row2 = row1
+    while (row1 == row2):
+      row2 = np.random.randint(0, n - 1)
+
+    coef = np.random.uniform(0.1, 2)
+    rstart1 = row1 * n
+    rstart2 = row2 * n
+    for j in range(n):
+      matrix[rstart2 + j] += coef * matrix[rstart1 + j]
 
 def generateRandomMatrix(size):
   matrix = np.random.uniform(MIN_ELEM, MAX_ELEM, (size, size))
@@ -62,7 +73,7 @@ for size in sizes:
     print(f"Determinant (External Program): {det_external}")
 
     # Check if the results are close (floating-point precision issues may arise)
-    if np.isclose(det_python, det_external, atol=1e-7, rtol=1e-3): # Экспериментально установленная точность
+    if np.isclose(det_python, det_external, rtol=1e-3): # Экспериментально установленная точность
       print("✅ Determinants match!")
     else:
       raise RuntimeError(f"❌ Determinants do not match with size = {size}")
