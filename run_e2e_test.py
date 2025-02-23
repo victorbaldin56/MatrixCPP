@@ -2,8 +2,8 @@ import os
 import numpy as np
 import subprocess
 
-MIN_ELEM = -2
-MAX_ELEM = 2
+MIN_ELEM = 0.7
+MAX_ELEM = 1.3
 ITERS = 5
 
 def shuffleRows(matrix):
@@ -18,11 +18,9 @@ def shuffleRows(matrix):
     while (row1 == row2):
       row2 = np.random.randint(0, n)
 
-    coef = np.random.uniform(0.1, 2)
-    rstart1 = row1 * n
-    rstart2 = row2 * n
+    coef = np.random.uniform(0.1, 0.2)
     for j in range(n):
-      matrix[rstart2 + j] += coef * matrix[rstart1 + j]
+      matrix[row1][j] += coef * matrix[row2][j]
     return matrix
 
 def generateRandomMatrix(size):
