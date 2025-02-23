@@ -204,7 +204,8 @@ class Matrix {
         sign = -sign;
       }
 
-      if (numeric_traits::isClose<value_type>(mcopy[i][i], 0)) {
+      if (numeric_traits::isClose<value_type>(mcopy[i][i],
+                                              static_cast<value_type>(0))) {
         return static_cast<value_type>(0);
       }
       mcopy.simplifyRows(i);
