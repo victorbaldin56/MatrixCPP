@@ -1,9 +1,33 @@
+#include <cstdlib>
+#include <cstdint>
+
+#include "boost/process.hpp"
+
 #include "gtest/gtest.h"
 
 #include "matrix/matrix.hh"
 
 TEST(det, integer_matrix) {
-
+  // run generator python script
+  boost::process::ipstream pipe_stream;
+  pipe_stream.exceptions(
+      boost::process::ipstream::failbit | boost::process::ipstream::eofbit);
+  boost::process::child c("python3 ./generate_data.py",
+                          boost::process::std_out > pipe_stream);
+  while (!pipe_stream.eof()) {
+    std::size_t n;
+    pipe_stream >> n;
+    matrix::Matrix<std::int64_t> m(n, n);
+    std::transform(m.begin(), m.end(), m.begin(),
+                   [&pipe_stream](){
+                     std::int64_t v;
+                     pipe_stream >> v;
+                     return v;
+                   });
+    std::int64_t ans;
+    pipe_stream >> ans;
+    ASSERT_EQ(ans, m.det());
+  }
 }
 
 TEST(det, simple) {
