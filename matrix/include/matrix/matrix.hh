@@ -183,11 +183,11 @@ class Matrix {
  public: // computing functions
   value_type det() const {
     if (!isSquare()) {
-      throw std::runtime_error("Matrix::det: rows_ != cols_");
+      throw std::runtime_error("Matrix::det(): rows_ != cols_");
     }
 
     if (!rows_ || !cols_) {
-      throw std::runtime_error("Matrix:det: matrix size must be > 0");
+      throw std::runtime_error("Matrix:det(): matrix size must be > 0");
     }
 
     auto mcopy(*this);
@@ -204,7 +204,8 @@ class Matrix {
         sign = -sign;
       }
 
-      if (numeric_traits::isClose<double>(mcopy[i][i], 0)) {
+      if (numeric_traits::isClose<value_type>(mcopy[i][i],
+                                              static_cast<value_type>(0))) {
         return static_cast<value_type>(0);
       }
       mcopy.simplifyRows(i);

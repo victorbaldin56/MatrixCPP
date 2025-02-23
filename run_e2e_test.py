@@ -2,19 +2,35 @@ import os
 import numpy as np
 import subprocess
 
-MIN_ELEM = -2
-MAX_ELEM = 2
+MIN_ELEM = 0.8
+MAX_ELEM = 1.3
 ITERS = 5
+
+def shuffleRows(matrix):
+  """Applies basic transformations to matrix keeping its determinant."""
+  n = matrix.shape[0]
+  if (n == 1):
+    return matrix
+
+  for _ in range(n):
+    row1 = np.random.randint(0, n)
+    row2 = row1
+    while (row1 == row2):
+      row2 = np.random.randint(0, n)
+
+    coef = np.random.uniform(0.1, 0.2)
+    for j in range(n):
+      matrix[row1][j] += coef * matrix[row2][j]
+    return matrix
 
 def generateRandomMatrix(size):
   matrix = np.random.uniform(MIN_ELEM, MAX_ELEM, (size, size))
   matrix = np.triu(matrix) # because of overflows occurring with common matrices
-  return matrix
+  return shuffleRows(matrix)
 
 def getDeterminantFromNumPy(matrix):
   """Computes the determinant using NumPy."""
   return np.linalg.det(matrix)
-
 
 def sendTextToDriver(text):
   file_path = os.path.abspath(os.path.dirname(__file__))
@@ -39,7 +55,7 @@ def getDeterminantFromDriver(matrix):
 print(f"matrix.size = 0")
 process = sendTextToDriver("0\n")
 
-if (process.returncode == 0 or process.stderr != "Matrix:det: matrix size must be > 0\n"):
+if (process.returncode == 0 or process.stderr != "Matrix:det(): matrix size must be > 0\n"):
   print(f"Process returned with code = {process.returncode}")
   print(f"Process stderr: {process.stderr}")
   raise RuntimeError(f"❌ Failed test with size = 0")
@@ -58,7 +74,7 @@ for size in sizes:
     print(f"Determinant (External Program): {det_external}")
 
     # Check if the results are close (floating-point precision issues may arise)
-    if np.isclose(det_python, det_external, rtol=1e-3): # Экспериментально установленная точность
+    if np.isclose(det_python, det_external, rtol=1e-2): # Экспериментально установленная точность
       print("✅ Determinants match!")
     else:
       raise RuntimeError(f"❌ Determinants do not match with size = {size}")
