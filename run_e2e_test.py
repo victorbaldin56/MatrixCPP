@@ -1,20 +1,37 @@
 import os
 import numpy as np
+import scipy
 import subprocess
 
 MIN_ELEM = -2
 MAX_ELEM = 2
 ITERS = 5
 
+def mixMatrix(matrix):
+  """Applies basic transformations to matrix keeping its determinant."""
+  n = matrix.shape[0]
+
+  # Compute the LU decomposition of the matrix
+  P, L, U = scipy.linalg.lu(matrix)
+
+  # Randomize the lower triangular part (L) and upper triangular part (U)
+  # while preserving the diagonal elements (which determine the determinant)
+  random_L = np.tril(np.random.rand(n, n), k=-1) + np.eye(n)  # Random lower triangular with 1s on diagonal
+  random_U = np.triu(np.random.rand(n, n), k=0)  # Random upper triangular
+
+  # Reconstruct the matrix
+  randomized_matrix = P @ random_L @ random_U
+
+  return randomized_matrix
+
 def generateRandomMatrix(size):
   matrix = np.random.uniform(MIN_ELEM, MAX_ELEM, (size, size))
   matrix = np.triu(matrix) # because of overflows occurring with common matrices
-  return matrix
+  return mixMatrix(matrix)
 
 def getDeterminantFromNumPy(matrix):
   """Computes the determinant using NumPy."""
   return np.linalg.det(matrix)
-
 
 def sendTextToDriver(text):
   file_path = os.path.abspath(os.path.dirname(__file__))
