@@ -3,8 +3,8 @@ import numpy as np
 import scipy
 import subprocess
 
-MIN_ELEM = -3
-MAX_ELEM = 3
+MIN_ELEM = 0.1
+MAX_ELEM = 10
 ITERS = 5
 
 def randomizeMatrix(matrix):
