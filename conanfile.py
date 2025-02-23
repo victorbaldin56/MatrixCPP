@@ -12,7 +12,7 @@ class MatrixRecipe(ConanFile):
 
   def requirements(self):
     if self.options.testing:
-      pip.main(['install', 'numpy==2.2.3', 'scipy==1.15.2'])
+      pip.main(['install', 'numpy==2.2.3'])
       self.test_requires("gtest/1.15.0")
 
   def generate(self):

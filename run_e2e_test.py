@@ -1,6 +1,5 @@
 import os
 import numpy as np
-import scipy
 import subprocess
 
 MIN_ELEM = -2
@@ -11,10 +10,10 @@ def randomizeMatrix(matrix):
   """Applies basic transformations to matrix keeping its determinant."""
   n = matrix.shape[0]
   for i in range(n):
-    row1 = np.random.randint(0, n - 1)
+    row1 = np.random.randint(0, n)
     row2 = row1
     while (row1 == row2):
-      row2 = np.random.randint(0, n - 1)
+      row2 = np.random.randint(0, n)
 
     coef = np.random.uniform(0.1, 2)
     rstart1 = row1 * n
