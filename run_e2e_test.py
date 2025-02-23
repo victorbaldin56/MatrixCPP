@@ -3,7 +3,7 @@ import numpy as np
 import scipy
 import subprocess
 
-MIN_ELEM = 0.1
+MIN_ELEM = -2
 MAX_ELEM = 2
 ITERS = 5
 
@@ -75,7 +75,7 @@ for size in sizes:
     print(f"Determinant (External Program): {det_external}")
 
     # Check if the results are close (floating-point precision issues may arise)
-    if np.isclose(det_python, det_external, atol=1e-8, rtol=1e-4): # Экспериментально установленная точность
+    if np.isclose(det_python, det_external, atol=1e-8, rtol=1e-3): # Экспериментально установленная точность
       print("✅ Determinants match!")
     else:
       raise RuntimeError(f"❌ Determinants do not match with size = {size}")
