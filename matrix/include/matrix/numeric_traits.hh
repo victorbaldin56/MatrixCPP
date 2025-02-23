@@ -7,12 +7,16 @@ namespace numeric_traits {
 
 template <typename T>
 inline T absTolerance() {
-  return std::numeric_limits<T>::is_exact ? 1e-5 : 0;
+  return
+      std::numeric_limits<T>::is_exact ? static_cast<T>(1e-5)
+                                       : static_cast<T>(0);
 }
 
 template <typename T>
 inline T relTolerance() {
-  return std::numeric_limits<T>::is_exact ? 1e-5 : 0;
+  return
+      std::numeric_limits<T>::is_exact ? static_cast<T>(1e-5)
+                                       : static_cast<T>(0);
 }
 
 template <typename T>

@@ -6,10 +6,13 @@ MIN_ELEM = -2
 MAX_ELEM = 2
 ITERS = 5
 
-def randomizeMatrix(matrix):
+def shuffleRows(matrix):
   """Applies basic transformations to matrix keeping its determinant."""
   n = matrix.shape[0]
-  for i in range(n):
+  if (n == 1):
+    return matrix
+
+  for _ in range(n):
     row1 = np.random.randint(0, n)
     row2 = row1
     while (row1 == row2):
@@ -20,11 +23,12 @@ def randomizeMatrix(matrix):
     rstart2 = row2 * n
     for j in range(n):
       matrix[rstart2 + j] += coef * matrix[rstart1 + j]
+    return matrix
 
 def generateRandomMatrix(size):
   matrix = np.random.uniform(MIN_ELEM, MAX_ELEM, (size, size))
   matrix = np.triu(matrix) # because of overflows occurring with common matrices
-  return randomizeMatrix(matrix)
+  return shuffleRows(matrix)
 
 def getDeterminantFromNumPy(matrix):
   """Computes the determinant using NumPy."""
