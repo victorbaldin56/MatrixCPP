@@ -4,7 +4,7 @@ import scipy
 import subprocess
 
 MIN_ELEM = 0.1
-MAX_ELEM = 1
+MAX_ELEM = 2
 ITERS = 5
 
 def randomizeMatrix(matrix):
