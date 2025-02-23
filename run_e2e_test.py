@@ -56,7 +56,7 @@ def getDeterminantFromDriver(matrix):
 print(f"matrix.size = 0")
 process = sendTextToDriver("0\n")
 
-if (process.returncode == 0 or process.stderr != "Matrix:det: matrix size must be > 0\n"):
+if (process.returncode == 0 or process.stderr != "Matrix:det(): matrix size must be > 0\n"):
   print(f"Process returned with code = {process.returncode}")
   print(f"Process stderr: {process.stderr}")
   raise RuntimeError(f"❌ Failed test with size = 0")
@@ -75,7 +75,7 @@ for size in sizes:
     print(f"Determinant (External Program): {det_external}")
 
     # Check if the results are close (floating-point precision issues may arise)
-    if np.isclose(det_python, det_external, rtol=1e-2): # Экспериментально установленная точность
+    if np.isclose(det_python, det_external, rtol=1e-3): # Экспериментально установленная точность
       print("✅ Determinants match!")
     else:
       raise RuntimeError(f"❌ Determinants do not match with size = {size}")

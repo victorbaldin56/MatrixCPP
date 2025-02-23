@@ -183,11 +183,11 @@ class Matrix {
  public: // computing functions
   value_type det() const {
     if (!isSquare()) {
-      throw std::runtime_error("Matrix::det: rows_ != cols_");
+      throw std::runtime_error("Matrix::det(): rows_ != cols_");
     }
 
     if (!rows_ || !cols_) {
-      throw std::runtime_error("Matrix:det: matrix size must be > 0");
+      throw std::runtime_error("Matrix:det(): matrix size must be > 0");
     }
 
     auto mcopy(*this);
