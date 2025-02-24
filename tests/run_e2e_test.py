@@ -35,7 +35,7 @@ def getDeterminantFromNumPy(matrix):
 def sendTextToDriver(text):
   file_path = os.path.abspath(os.path.dirname(__file__))
   process = subprocess.run(
-    [file_path + "/build/driver/driver"],  # External executable
+    [file_path + "/../build/driver/driver"],  # External executable
     input=text, text=True, capture_output=True
   )
   return process

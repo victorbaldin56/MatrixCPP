@@ -14,7 +14,6 @@ class MatrixRecipe(ConanFile):
     if self.options.testing:
       pip.main(['install', 'numpy==2.2.3'])
       self.test_requires("gtest/1.15.0")
-      self.test_requires("boost/1.86.0") # for boost.process
 
   def generate(self):
     # Customize CMakeToolchain in the generate() method
