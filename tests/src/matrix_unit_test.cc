@@ -43,6 +43,18 @@ TEST(matrix_ctor, simple) {
   ASSERT_EQ(v1, v2);
 }
 
+TEST(matrix_ctor, ilist) {
+  std::initializer_list<int> il{1, 2, 3, 4, 5, 6,
+                                1, 2, 3, 4, 5, 6,
+                                1, 2, 3, 4, 5, 6,
+                                1, 2, 3, 4, 5, 6,
+                                1, 2, 3, 4, 5, 6,
+                                1, 2, 3, 4, 5, 6};
+  std::vector<int> v(il);
+  matrix::Matrix<int> m(6, il);
+  ASSERT_TRUE(std::equal(v.begin(), v.end(), m.begin()));
+}
+
 TEST(matrix_assign, ilist) {
   matrix::Matrix<double> m(5, 6);
   std::initializer_list<double> il{1, 2, 3, 4, 5, 6,
@@ -82,6 +94,11 @@ TEST(det, zero_size) {
 }
 
 TEST(det, integer_matrix) {
+  matrix::Matrix<int> m0(
+      2, {1, 2,
+          2, 1});
+  ASSERT_EQ(m0.det(), -3);
+
   matrix::Matrix<int> m1(
       3, {1,  2, 3,
           4,  5, 6,

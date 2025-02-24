@@ -126,7 +126,7 @@ class Matrix {
   }
 
   ConstProxyRow operator[](size_type pos) const noexcept {
-    return ConstProxyRow(data_.begin() + pos * cols_, cols_);
+    return ConstProxyRow(data_.cbegin() + pos * cols_, cols_);
   }
 
   size_type rows() const noexcept { return rows_; }
@@ -187,12 +187,12 @@ class Matrix {
     }
 
     if (!rows_ || !cols_) {
-      throw std::runtime_error("Matrix:det(): matrix size must be > 0");
+      throw std::runtime_error("Matrix::det(): matrix size must be > 0");
     }
 
     auto mcopy(*this);
     auto sign = 1;
-    for (std::size_t i = 0; i < cols_; ++i) {
+    for (size_type i = 0; i < cols_; ++i) {
       auto pivot = i;
       for (auto j = i + 1; j < rows_; ++j) {
         if (std::abs(mcopy[j][i]) > std::abs(mcopy[pivot][i])) {
@@ -212,7 +212,7 @@ class Matrix {
     }
 
     auto det = static_cast<value_type>(sign);
-    for (auto i = 0; i < rows_; ++i) {
+    for (size_type i = 0; i < rows_; ++i) {
       det *= mcopy[i][i];
     }
     return det;
@@ -233,7 +233,7 @@ class Matrix {
   static Matrix eye(size_type n) {
     Matrix m(n, n);
     for (std::size_t i = 0; i < m.rows(); ++i) {
-      m[i][i] = static_cast<T>(1);
+      m[i][i] = static_cast<value_type>(1);
     }
     return m;
   }

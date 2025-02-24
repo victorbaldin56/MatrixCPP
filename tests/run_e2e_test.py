@@ -55,7 +55,7 @@ def getDeterminantFromDriver(matrix):
 print(f"matrix.size = 0")
 process = sendTextToDriver("0\n")
 
-if (process.returncode == 0 or process.stderr != "Matrix:det(): matrix size must be > 0\n"):
+if (process.returncode == 0 or process.stderr != "Matrix::det(): matrix size must be > 0\n"):
   print(f"Process returned with code = {process.returncode}")
   print(f"Process stderr: {process.stderr}")
   raise RuntimeError(f"❌ Failed test with size = 0")
