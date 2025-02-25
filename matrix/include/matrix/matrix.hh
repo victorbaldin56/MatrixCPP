@@ -15,20 +15,8 @@
 
 namespace matrix {
 
-template <
-    typename T, typename Alloc = std::allocator<T>,
-    typename = std::enable_if<
-        std::is_convertible_v<int, T> &&
-        std::is_same<
-            decltype(-std::declval<T>()), T>::value &&
-        std::is_same<
-            decltype(std::declval<T>() + std::declval<T>()), T>::value &&
-        std::is_same<
-            decltype(std::declval<T>() - std::declval<T>()), T>::value &&
-        std::is_same<
-            decltype(std::declval<T>() * std::declval<T>()), T>::value &&
-        std::is_same<
-            decltype(std::declval<T>() / std::declval<T>()), T>::value>>
+template <typename T, typename Alloc = std::allocator<T>,
+          typename = std::enable_if<std::is_arithmetic_v<T>>>
 class Matrix {
   // Contigious storage chosen here because of
   // 1. Positive attitude to cache effects.
