@@ -4,7 +4,6 @@ project(Matrix)
 if (${BUILD_TESTING})
   enable_testing()
   find_package(GTest REQUIRED)
-  find_package(Boost COMPONENTS process REQUIRED)
   include(GoogleTest)
 endif()
 
