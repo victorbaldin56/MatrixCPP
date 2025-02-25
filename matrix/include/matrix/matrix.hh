@@ -11,7 +11,7 @@
 
 #include "vector/vector.hh"
 
-#include "numeric_traits.hh"
+#include "comparator.hh"
 
 namespace matrix {
 
@@ -89,9 +89,11 @@ class Matrix {
 
   template <typename U>
   Matrix(const Matrix<U>& other)
-      : rows_(other.rows()), cols_(other.cols()), data_(rows_ * cols_) {
-    std::transform(other.cbegin(), other.cend(), begin(),
-                   [](const auto& e) { return static_cast<value_type>(e); });
+      : rows_(other.rows()), cols_(other.cols()) {
+    data_.reserve(rows_ * cols_);
+    std::for_each(
+        other.cbegin(), other.cend(),
+        [this](const auto& e) { data_.pushBack(static_cast<value_type>(e)); });
   }
 
   virtual ~Matrix() {}
@@ -173,6 +175,8 @@ class Matrix {
     return true;
   }
 
+  // currently supports only floating point calculations
+  template <typename = std::enable_if<std::is_floating_point_v<value_type>>>
   void simplifyRows(size_type idx) {
     auto base_row = operator[](idx);
     for (auto j = idx + 1; j < rows_; ++j) {
@@ -196,7 +200,7 @@ class Matrix {
     }
 
     Matrix<double> mcopy(*this);
-    auto sign = 1;
+    double sign = 1;
     for (size_type i = 0; i < cols_; ++i) {
       auto pivot = i;
       for (auto j = i + 1; j < rows_; ++j) {
@@ -209,14 +213,13 @@ class Matrix {
         sign = -sign;
       }
 
-      if (numeric_traits::isClose<value_type>(mcopy[i][i],
-                                              static_cast<value_type>(0))) {
-        return static_cast<value_type>(0);
+      if (comparator::isClose<double>(mcopy[i][i], 0)) {
+        return 0;
       }
       mcopy.simplifyRows(i);
     }
 
-    auto det = static_cast<value_type>(sign);
+    auto det = sign;
     for (size_type i = 0; i < rows_; ++i) {
       det *= mcopy[i][i];
     }

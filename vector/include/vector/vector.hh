@@ -130,7 +130,7 @@ class Vector : private detail::VectorBuffer<T, Alloc> {
     }
   }
 
-  explicit Vector(size_type sz = 0,
+  explicit Vector(size_type sz,
                   const allocator_type& alloc = allocator_type())
       : Vector(sz, value_type(), alloc) {}
 
