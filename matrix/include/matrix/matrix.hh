@@ -11,7 +11,7 @@
 
 #include "vector/vector.hh"
 
-#include "numeric_traits.hh"
+#include "comparator.hh"
 
 namespace matrix {
 
@@ -67,8 +67,7 @@ class Matrix {
                   std::iterator_traits<It>::iterator_category>::value>>
   Matrix(size_type rows, size_type cols, It begin, It end,
          const allocator_type& alloc = allocator_type())
-      : rows_(rows), cols_(cols),
-        data_(rows * cols, alloc) { std::copy(begin, end, data_.begin()); }
+      : data_(begin, end, alloc) { resize(rows, cols); }
 
   template <
       typename It,
@@ -80,12 +79,22 @@ class Matrix {
   Matrix(size_type cols, It begin, It end,
          const allocator_type& alloc = allocator_type())
       : data_(begin, end, alloc),
-        cols_(cols),
-        rows_(std::ceil(static_cast<double>(data_.size()) / cols)) {}
+        cols_(cols) {
+    rows_ = std::ceil(static_cast<double>(data_.size()) / cols);
+  }
 
   Matrix(size_type cols, std::initializer_list<value_type> ilist,
          const allocator_type& alloc = allocator_type())
       : Matrix(cols, ilist.begin(), ilist.end(), alloc) {}
+
+  template <typename U>
+  Matrix(const Matrix<U>& other)
+      : rows_(other.rows()), cols_(other.cols()) {
+    data_.reserve(rows_ * cols_);
+    std::for_each(
+        other.cbegin(), other.cend(),
+        [this](const auto& e) { data_.pushBack(static_cast<value_type>(e)); });
+  }
 
   virtual ~Matrix() {}
 
@@ -126,7 +135,7 @@ class Matrix {
   }
 
   ConstProxyRow operator[](size_type pos) const noexcept {
-    return ConstProxyRow(data_.begin() + pos * cols_, cols_);
+    return ConstProxyRow(data_.cbegin() + pos * cols_, cols_);
   }
 
   size_type rows() const noexcept { return rows_; }
@@ -166,33 +175,33 @@ class Matrix {
     return true;
   }
 
+  // currently supports only floating point calculations
+  template <typename = std::enable_if<std::is_floating_point_v<value_type>>>
   void simplifyRows(size_type idx) {
-    auto i_offset = idx * cols_;
+    auto base_row = operator[](idx);
     for (auto j = idx + 1; j < rows_; ++j) {
-      auto shift_j = j * cols_;
-
-      auto jit = data_.begin() + shift_j;
-      auto coef = data_[shift_j + idx] / data_[i_offset + idx];
+      auto cur_row = operator[](j);
+      auto coef = cur_row[idx] / base_row[idx];
       std::transform(
-          data_.begin() + i_offset, data_.begin() + i_offset + cols_,
-          jit, jit,
+          base_row.begin(), base_row.end(),
+          cur_row.begin(), cur_row.begin(),
           [coef](const auto& a, const auto& b) { return b - coef * a; });
     }
   }
 
  public: // computing functions
-  value_type det() const {
+  double det() const {
     if (!isSquare()) {
       throw std::runtime_error("Matrix::det(): rows_ != cols_");
     }
 
     if (!rows_ || !cols_) {
-      throw std::runtime_error("Matrix:det(): matrix size must be > 0");
+      throw std::runtime_error("Matrix::det(): matrix size must be > 0");
     }
 
-    auto mcopy(*this);
-    auto sign = 1;
-    for (auto i = 0; i < cols_; ++i) {
+    Matrix<double> mcopy(*this);
+    double sign = 1;
+    for (size_type i = 0; i < cols_; ++i) {
       auto pivot = i;
       for (auto j = i + 1; j < rows_; ++j) {
         if (std::abs(mcopy[j][i]) > std::abs(mcopy[pivot][i])) {
@@ -204,15 +213,14 @@ class Matrix {
         sign = -sign;
       }
 
-      if (numeric_traits::isClose<value_type>(mcopy[i][i],
-                                              static_cast<value_type>(0))) {
-        return static_cast<value_type>(0);
+      if (comparator::isClose<double>(mcopy[i][i], 0)) {
+        return 0;
       }
       mcopy.simplifyRows(i);
     }
 
-    auto det = static_cast<value_type>(sign);
-    for (auto i = 0; i < rows_; ++i) {
+    auto det = sign;
+    for (size_type i = 0; i < rows_; ++i) {
       det *= mcopy[i][i];
     }
     return det;
@@ -233,15 +241,15 @@ class Matrix {
   static Matrix eye(size_type n) {
     Matrix m(n, n);
     for (std::size_t i = 0; i < m.rows(); ++i) {
-      m[i][i] = static_cast<T>(1);
+      m[i][i] = static_cast<value_type>(1);
     }
     return m;
   }
 
  private:
-  ContigiousContainer data_;
   size_type rows_;
   size_type cols_;
+  ContigiousContainer data_;
 };
 
 } // namespace matrix
