@@ -67,8 +67,7 @@ class Matrix {
                   std::iterator_traits<It>::iterator_category>::value>>
   Matrix(size_type rows, size_type cols, It begin, It end,
          const allocator_type& alloc = allocator_type())
-      : rows_(rows), cols_(cols),
-        data_(rows * cols, alloc) { std::copy(begin, end, data_.begin()); }
+      : data_(begin, end, alloc) { resize(rows, cols); }
 
   template <
       typename It,
@@ -80,12 +79,20 @@ class Matrix {
   Matrix(size_type cols, It begin, It end,
          const allocator_type& alloc = allocator_type())
       : data_(begin, end, alloc),
-        cols_(cols),
-        rows_(std::ceil(static_cast<double>(data_.size()) / cols)) {}
+        cols_(cols) {
+    rows_ = std::ceil(static_cast<double>(data_.size()) / cols);
+  }
 
   Matrix(size_type cols, std::initializer_list<value_type> ilist,
          const allocator_type& alloc = allocator_type())
       : Matrix(cols, ilist.begin(), ilist.end(), alloc) {}
+
+  template <typename U>
+  Matrix(const Matrix<U>& other)
+      : rows_(other.rows()), cols_(other.cols()), data_(rows_ * cols_) {
+    std::transform(other.cbegin(), other.cend(), begin(),
+                   [](const auto& e) { return static_cast<value_type>(e); });
+  }
 
   virtual ~Matrix() {}
 
@@ -167,21 +174,19 @@ class Matrix {
   }
 
   void simplifyRows(size_type idx) {
-    auto i_offset = idx * cols_;
+    auto base_row = operator[](idx);
     for (auto j = idx + 1; j < rows_; ++j) {
-      auto shift_j = j * cols_;
-
-      auto jit = data_.begin() + shift_j;
-      auto coef = data_[shift_j + idx] / data_[i_offset + idx];
+      auto cur_row = operator[](j);
+      auto coef = cur_row[idx] / base_row[idx];
       std::transform(
-          data_.begin() + i_offset, data_.begin() + i_offset + cols_,
-          jit, jit,
+          base_row.begin(), base_row.end(),
+          cur_row.begin(), cur_row.begin(),
           [coef](const auto& a, const auto& b) { return b - coef * a; });
     }
   }
 
  public: // computing functions
-  value_type det() const {
+  double det() const {
     if (!isSquare()) {
       throw std::runtime_error("Matrix::det(): rows_ != cols_");
     }
@@ -190,7 +195,7 @@ class Matrix {
       throw std::runtime_error("Matrix::det(): matrix size must be > 0");
     }
 
-    auto mcopy(*this);
+    Matrix<double> mcopy(*this);
     auto sign = 1;
     for (size_type i = 0; i < cols_; ++i) {
       auto pivot = i;
@@ -239,9 +244,9 @@ class Matrix {
   }
 
  private:
-  ContigiousContainer data_;
   size_type rows_;
   size_type cols_;
+  ContigiousContainer data_;
 };
 
 } // namespace matrix

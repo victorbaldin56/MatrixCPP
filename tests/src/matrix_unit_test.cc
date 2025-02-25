@@ -97,13 +97,13 @@ TEST(det, integer_matrix) {
   matrix::Matrix<int> m0(
       2, {1, 2,
           2, 1});
-  ASSERT_EQ(m0.det(), -3);
+  ASSERT_DOUBLE_EQ(m0.det(), -3);
 
   matrix::Matrix<int> m1(
       3, {1,  2, 3,
           4,  5, 6,
           7, 87, 9});
-  ASSERT_EQ(m1.det(), 474);
+  ASSERT_DOUBLE_EQ(m1.det(), 474);
 
   matrix::Matrix<int> m2(
       6, {1, 2, 3, 4,  5,  6,
@@ -112,7 +112,7 @@ TEST(det, integer_matrix) {
           0, 6, 7, 8, -3, -4,
           1, 3, 4, 9, -7, -2,
           0, 0, 0, 0, -9, 10});
-  ASSERT_EQ(m2.det(), 0);
+  ASSERT_DOUBLE_EQ(m2.det(), 0);
 }
 
 int main(int argc, char** argv) {

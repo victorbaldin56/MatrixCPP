@@ -181,8 +181,8 @@ class Vector : private detail::VectorBuffer<T, Alloc> {
  public: // iterators
   iterator begin() noexcept { return iterator(data_); }
   iterator end() noexcept { return iterator(data_ + sz_); }
-  const_iterator cbegin() noexcept { return const_iterator(data_); }
-  const_iterator cend() noexcept { return const_iterator(data_ + sz_); }
+  const_iterator cbegin() const noexcept { return const_iterator(data_); }
+  const_iterator cend() const noexcept { return const_iterator(data_ + sz_); }
 
   reverse_iterator rbegin() noexcept {
     return reverse_iterator(end());
@@ -190,10 +190,10 @@ class Vector : private detail::VectorBuffer<T, Alloc> {
   reverse_iterator rend() noexcept {
     return reverse_iterator(begin());
   }
-  const_reverse_iterator crbegin() noexcept {
+  const_reverse_iterator crbegin() const noexcept {
     return const_reverse_iterator(cend());
   }
-  const_reverse_iterator crend() noexcept {
+  const_reverse_iterator crend() const noexcept {
     return const_reverse_iterator(cbegin());
   }
 
