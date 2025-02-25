@@ -41,7 +41,7 @@ for i in range(config.NUM_TESTS):
   print(f"Determinant (reference): {det_python}")
 
   # Check if the results are close (floating-point precision issues may arise)
-  if np.isclose(det_python, det_external, rtol=2e-2): # Экспериментально установленная точность
+  if np.isclose(det_python, det_external, rtol=5e-3): # Экспериментально установленная точность
     print("✅ Determinants match!")
   else:
     raise RuntimeError(f"❌ Determinants do not match")

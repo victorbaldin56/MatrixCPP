@@ -124,7 +124,8 @@ class Vector : private detail::VectorBuffer<T> {
   explicit Vector(size_type sz = 0, const_reference val = value_type())
       : detail::VectorBuffer<value_type>(sz) {
     while (sz_ < cap_) {
-      pushBack(val);
+      detail::construct(data_ + sz_, val);
+      ++sz_;
     }
   }
 
@@ -137,7 +138,11 @@ class Vector : private detail::VectorBuffer<T> {
                   std::iterator_traits<It>::iterator_category>::value>>
   Vector(It begin, It end)
       : detail::VectorBuffer<value_type>(std::distance(begin, end)) {
-    std::for_each(begin, end, [this](auto&& v) { pushBack(v); });
+    std::for_each(begin, end,
+                  [this](auto&& v) {
+                    detail::construct(data_ + sz_, v);
+                    ++sz_;
+                  });
   }
 
   Vector(std::initializer_list<value_type> ilist)
@@ -147,7 +152,10 @@ class Vector : private detail::VectorBuffer<T> {
     clear();
     reserve(ilist.size());
     std::for_each(ilist.begin(), ilist.end(),
-                  [this](auto&& v){ pushBack(v); });
+                  [this](auto&& v) {
+                    detail::construct(data_ + sz_, v);
+                    ++sz_;
+                  });
   }
 
   Vector(Vector&& rhs) noexcept = default;
