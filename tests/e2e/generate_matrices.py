@@ -1,3 +1,4 @@
+import config
 import os
 import numpy as np
 
@@ -11,7 +12,7 @@ def shuffleRows(matrix):
   if n == 1:
     return matrix
 
-  for _ in range(n):
+  for _ in range(int(n**1.5)):
     # Randomly select two distinct rows
     row1 = np.random.randint(0, n)
     row2 = row1
@@ -44,20 +45,18 @@ def dumpAnsToFile(ans, file_path):
     f.write(str(ans) + '\n')
 
 file_path = os.path.abspath(os.path.dirname(__file__))
-input_dir = file_path + "/input/"
-if not os.path.isdir(input_dir):
-  os.mkdir(input_dir)
+if not os.path.isdir(config.input_dir):
+  os.mkdir(config.input_dir)
 
-ans_dir = file_path + "/ans/"
-if not os.path.isdir(ans_dir):
-  os.mkdir(ans_dir)
+if not os.path.isdir(config.ans_dir):
+  os.mkdir(config.ans_dir)
 
-for i in range(10):
+for i in range(config.NUM_TESTS):
   size = np.random.randint(100, 1000)
   print(f"matrix.size = {size}\n")
   matrix = generateRandomMatrix(size)
   det_python = np.linalg.det(matrix)
-  input_path = input_dir + f"test_{i + 1}.in"
-  ans_path = ans_dir + f"ans_{i + 1}.out"
+  input_path = config.input_dir + f"test_{i + 1}.in"
+  ans_path = config.ans_dir + f"ans_{i + 1}.out"
   dumpMatrixToFile(matrix=matrix, file_path=input_path)
   dumpAnsToFile(ans=det_python, file_path=ans_path)
