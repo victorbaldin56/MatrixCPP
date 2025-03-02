@@ -163,10 +163,11 @@ class Matrix {
     auto base_row = operator[](idx);
     for (auto j = idx + 1; j < rows_; ++j) {
       auto cur_row = operator[](j);
+      auto cur_row_begin = cur_row.begin();
       auto coef = cur_row[idx] / base_row[idx];
       std::transform(
           base_row.begin(), base_row.end(),
-          cur_row.begin(), cur_row.begin(),
+          cur_row_begin, cur_row_begin,
           [coef](const auto& a, const auto& b) { return b - coef * a; });
     }
   }
