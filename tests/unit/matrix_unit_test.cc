@@ -64,8 +64,8 @@ TEST(det, large_values_matrix) {
 TEST(det, near_singular_matrix) {
   matrix::Matrix<double> m = matrix::Matrix<double>::eye(10);
   // Create nearly singular matrix
-  m[9][9] = 1e-5;
-  ASSERT_TRUE(comparator::isClose(m.det(), 1e-5));
+  m[9][9] = 1e-30;
+  ASSERT_TRUE(comparator::isClose(m.det(), 1e-30));
 }
 
 TEST(det, eye) {

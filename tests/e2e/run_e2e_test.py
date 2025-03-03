@@ -30,18 +30,24 @@ def getAns(file):
   with open(file, 'r') as f:
     return float(f.readline().strip())
 
-for i in range(config.NUM_TESTS):
-  input_file = config.input_dir + f"test_{i + 1}.in"
-  ans_file = config.ans_dir + f"ans_{i + 1}.out"
-  det_external = getDeterminantFromDriver(input_file)
-  det_python = getAns(ans_file)
+def test(input_dir, ans_dir, num_tests):
+  for i in range(num_tests):
+    input_file = input_dir + f"test_{i + 1}.in"
+    ans_file = ans_dir + f"ans_{i + 1}.out"
+    det_external = getDeterminantFromDriver(input_file)
+    det_python = getAns(ans_file)
 
-  print(f"Test [{i+1}/10]")
-  print(f"Determinant (External Program): {det_external}")
-  print(f"Determinant (reference): {det_python}")
+    print(f"Test [{i+1}/10]")
+    print(f"Determinant (External Program): {det_external}")
+    print(f"Determinant (reference): {det_python}")
 
-  # Check if the results are close (floating-point precision issues may arise)
-  if np.isclose(det_python, det_external, rtol=1e-3): # Экспериментально установленная точность
-    print("✅ Determinants match!")
-  else:
-    raise RuntimeError(f"❌ Determinants do not match")
+    # Check if the results are close (floating-point precision issues may arise)
+    if np.isclose(det_python, det_external, rtol=1e-3): # Экспериментально установленная точность
+      print("✅ Determinants match!")
+    else:
+      raise RuntimeError(f"❌ Determinants do not match")
+
+test(input_dir=config.input_dir, ans_dir=config.ans_dir,
+     num_tests=config.NUM_TESTS)
+test(input_dir=config.ext_input_dir, ans_dir=config.ext_ans_dir,
+     num_tests=config.NUM_EXT_TESTS)
