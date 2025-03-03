@@ -7,12 +7,12 @@ namespace comparator {
 template <typename T>
 constexpr T kAbsTol =
     std::numeric_limits<T>::is_exact ? static_cast<T>(0)
-                                     : static_cast<T>(1e-7);
+                                     : static_cast<T>(1e-9);
 
 template <typename T>
 constexpr T kRelTol =
     std::numeric_limits<T>::is_exact ? static_cast<T>(0)
-                                     : static_cast<T>(1e-7);
+                                     : static_cast<T>(1e-9);
 
 template <typename T>
 inline bool isClose(const T& a, const T& b,
