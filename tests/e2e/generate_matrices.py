@@ -2,8 +2,8 @@ import config
 import os
 import numpy as np
 
-MIN_ELEM = -2
-MAX_ELEM = 2
+MIN_ELEM = 0.8
+MAX_ELEM = 1.25
 ITERS = 3
 
 def shuffleRows(matrix):
