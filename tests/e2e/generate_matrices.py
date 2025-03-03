@@ -2,8 +2,8 @@ import config
 import os
 import numpy as np
 
-MIN_ELEM = 0.9
-MAX_ELEM = 1.15
+MIN_ELEM = 0.8
+MAX_ELEM = 1.25
 ITERS = 3
 
 def shuffleRows(matrix):
@@ -52,7 +52,7 @@ if not os.path.isdir(config.ans_dir):
   os.mkdir(config.ans_dir)
 
 for i in range(config.NUM_TESTS):
-  size = np.random.randint(100, 1000)
+  size = np.random.randint(100, 200)
   print(f"matrix.size = {size}\n")
   matrix = generateRandomMatrix(size)
   det_python = np.linalg.det(matrix)

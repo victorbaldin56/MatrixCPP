@@ -50,6 +50,24 @@ TEST(det, simple) {
   ASSERT_TRUE(comparator::isClose(m.det(), 474.0));
 }
 
+TEST(det, large_values_matrix) {
+  matrix::Matrix<double> m(10, 10, 0.0);
+  // Matrix with large diagonal elements
+  for(size_t i = 0; i < 10; ++i) {
+    m[i][i] = 1e6 * (i + 1);
+  }
+  double expected = 1.0;
+  for(size_t i = 1; i <= 10; ++i) expected *= 1e6 * i;
+  ASSERT_TRUE(comparator::isClose(m.det(), expected));
+}
+
+TEST(det, near_singular_matrix) {
+  matrix::Matrix<double> m = matrix::Matrix<double>::eye(10);
+  // Create nearly singular matrix
+  m[9][9] = 1e-30;
+  ASSERT_TRUE(comparator::isClose(m.det(), 1e-30));
+}
+
 TEST(det, eye) {
   auto m = matrix::Matrix<double>::eye(1000);
   ASSERT_TRUE(comparator::isClose(m.det(), 1.0));
