@@ -210,7 +210,9 @@ class Matrix {
 
     auto det = sign;
     for (size_type i = 0; i < rows_; ++i) {
-      det *= mcopy[i][i];
+      auto&& elem = mcopy[i][i];
+      assert(std::isfinite(elem));
+      det *= elem;
     }
     return det;
   }
