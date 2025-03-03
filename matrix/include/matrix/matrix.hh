@@ -161,12 +161,16 @@ class Matrix {
   template <typename = std::enable_if<std::is_floating_point_v<value_type>>>
   void simplifyRows(size_type idx) {
     auto base_row = operator[](idx);
+    auto base_elem = base_row[idx];
+    auto base_row_begin = base_row.begin();
+    auto base_row_end = base_row.end();
+
     for (auto j = idx + 1; j < rows_; ++j) {
       auto cur_row = operator[](j);
       auto cur_row_begin = cur_row.begin();
-      auto coef = cur_row[idx] / base_row[idx];
+      auto coef = cur_row[idx] / base_elem;
       std::transform(
-          base_row.begin(), base_row.end(),
+          base_row_begin, base_row_end,
           cur_row_begin, cur_row_begin,
           [coef](const auto& a, const auto& b) { return b - coef * a; });
     }
