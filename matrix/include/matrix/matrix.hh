@@ -4,6 +4,7 @@
 #pragma once
 
 #include <algorithm>
+#include <cassert>
 #include <cstddef>
 #include <cmath>
 #include <stdexcept>
@@ -157,25 +158,6 @@ class Matrix {
     return true;
   }
 
-  // currently supports only floating point calculations
-  template <typename = std::enable_if<std::is_floating_point_v<value_type>>>
-  void simplifyRows(size_type idx) {
-    auto base_row = operator[](idx);
-    auto base_elem = base_row[idx];
-    auto base_row_begin = base_row.begin();
-    auto base_row_end = base_row.end();
-
-    for (auto j = idx + 1; j < rows_; ++j) {
-      auto cur_row = operator[](j);
-      auto cur_row_begin = cur_row.begin();
-      auto coef = cur_row[idx] / base_elem;
-      std::transform(
-          base_row_begin, base_row_end,
-          cur_row_begin, cur_row_begin,
-          [coef](const auto& a, const auto& b) { return b - coef * a; });
-    }
-  }
-
  public: // computing functions
   double det() const {
     if (!isSquare()) {
@@ -231,6 +213,27 @@ class Matrix {
       m[i][i] = static_cast<value_type>(1);
     }
     return m;
+  }
+
+ private: // private methods
+  // currently supports only floating point calculations
+  template <typename = std::enable_if<std::is_floating_point_v<value_type>>>
+  void simplifyRows(size_type idx) {
+    auto base_row = operator[](idx);
+    auto base_elem = base_row[idx];
+    assert(!comparator::isClose(base_elem, static_cast<value_type>(0)));
+    auto base_row_begin = base_row.begin();
+    auto base_row_end = base_row.end();
+
+    for (auto j = idx + 1; j < rows_; ++j) {
+      auto cur_row = operator[](j);
+      auto cur_row_begin = cur_row.begin();
+      auto coef = cur_row[idx] / base_elem;
+      std::transform(
+          base_row_begin, base_row_end,
+          cur_row_begin, cur_row_begin,
+          [coef](const auto& a, const auto& b) { return b - coef * a; });
+    }
   }
 
  private:
