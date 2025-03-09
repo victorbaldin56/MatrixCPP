@@ -47,20 +47,18 @@ class Matrix {
   template <
       typename It,
       typename = std::enable_if<
-          std::is_base_of<
+          std::is_base_of_v<
               std::input_iterator_tag,
-              typename
-                  std::iterator_traits<It>::iterator_category>::value>>
+              typename std::iterator_traits<It>::iterator_category>>>
   Matrix(size_type rows, size_type cols, It begin, It end)
       : data_(begin, end) { resize(rows, cols); }
 
   template <
       typename It,
       typename = std::enable_if<
-          std::is_base_of<
+          std::is_base_of_v<
               std::input_iterator_tag,
-              typename
-                  std::iterator_traits<It>::iterator_category>::value>>
+              typename std::iterator_traits<It>::iterator_category>>>
   Matrix(size_type cols, It begin, It end)
       : data_(begin, end),
         cols_(cols) {

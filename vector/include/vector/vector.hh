@@ -148,13 +148,13 @@ class Vector : private detail::VectorBuffer<T> {
 
     reserve(new_sz);
     while (sz_ < new_sz) {
-      pushBack(v);
+      push_back(v);
     }
   }
 
-  void pushBack(const_reference v) {
+  void push_back(const_reference v) {
     auto tmp(v);
-    pushBack(std::move(tmp));
+    push_back(std::move(tmp));
   }
 
   void pushBack(value_type&& v) {
