@@ -40,7 +40,8 @@ class Matrix {
 
  public: // constructors
   /** Creates and fills matrix with given value */
-  Matrix(size_type rows = 0, size_type cols = 0, const_reference val = value_type())
+  Matrix(size_type rows = 0, size_type cols = 0,
+         const_reference val = value_type())
       : data_(rows * cols, val), rows_(rows), cols_(cols) {}
 
   /** Creates matrix from given sequence */
@@ -72,9 +73,7 @@ class Matrix {
   Matrix(const Matrix<U>& other)
       : rows_(other.rows()), cols_(other.cols()) {
     data_.reserve(rows_ * cols_);
-    std::for_each(
-        other.cbegin(), other.cend(),
-        [this](const auto& e) { data_.pushBack(static_cast<value_type>(e)); });
+    std::copy(other.cbegin(), other.cend(), std::back_inserter(data_));
   }
 
   virtual ~Matrix() {}

@@ -157,7 +157,7 @@ class Vector : private detail::VectorBuffer<T> {
     push_back(std::move(tmp));
   }
 
-  void pushBack(value_type&& v) {
+  void push_back(value_type&& v) {
     if (sz_ == cap_) {
       reserve(getNextCap(cap_));
     }
@@ -170,7 +170,7 @@ class Vector : private detail::VectorBuffer<T> {
     sz_ = 0;
   }
 
-  void popBack() noexcept {
+  void pop_back() noexcept {
     --sz_;
     detail::destroy(data_ + sz_);
   }

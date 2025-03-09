@@ -52,7 +52,7 @@ TEST(vector, reserve) {
 
   tmp = vv.data();
   for (auto i = 3; i < 100000; ++i) {
-    vv.pushBack(std::vector<int>());
+    vv.push_back(std::vector<int>());
   }
   ASSERT_EQ(vv.data(), tmp);
   ASSERT_TRUE(std::equal(vv.rbegin(), vv.rend(), stdvv.rbegin()));
