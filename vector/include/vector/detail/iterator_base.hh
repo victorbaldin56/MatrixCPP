@@ -9,20 +9,17 @@ template <typename ValueType>
 struct IteratorBase {
   using iterator_category = std::random_access_iterator_tag;
   using difference_type = std::ptrdiff_t;
-  using size_type = std::size_t;
   using value_type = ValueType;
   using pointer
       = typename std::conditional<
                 std::is_const_v<value_type>,
                 const value_type*,
                 value_type*>::type;
-  using const_pointer = const value_type*;
   using reference
       = typename std::conditional<
             std::is_const_v<value_type>,
             const value_type&,
             value_type&>::type;
-  using const_reference = const value_type&;
 
   explicit IteratorBase(pointer p) noexcept : ptr_(p) {};
 
@@ -69,26 +66,9 @@ struct IteratorBase {
     return *this;
   }
 
-  reference operator[](size_type pos) noexcept { return ptr_[pos]; }
+  reference operator[](difference_type pos) noexcept { return ptr_[pos]; }
 
-  bool operator==(const IteratorBase& other) const noexcept {
-    return ptr_ == other.ptr_;
-  }
-  bool operator!=(const IteratorBase& other) const noexcept {
-    return ptr_ != other.ptr_;
-  }
-  bool operator<(const IteratorBase& other) const noexcept {
-    return ptr_ < other.ptr_;
-  }
-  bool operator>(const IteratorBase& other) const noexcept {
-    return ptr_ > other.ptr_;
-  }
-  bool operator<=(const IteratorBase& other) const noexcept {
-    return ptr_ <= other.ptr_;
-  }
-  bool operator>=(const IteratorBase& other) const noexcept {
-    return ptr_ >= other.ptr_;
-  }
+  auto operator<=>(const IteratorBase& other) const noexcept = default;
 
  private:
   pointer ptr_;

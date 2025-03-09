@@ -18,18 +18,31 @@ namespace vector {
 template <typename T>
 class Vector : private detail::VectorBuffer<T> {
  public: // member types
+  /**
+   * @defgroup Iterators {
+   */
   using iterator = detail::IteratorBase<T>;
   using const_iterator = detail::IteratorBase<const T>;
   using reverse_iterator = std::reverse_iterator<iterator>;
   using const_reverse_iterator = std::reverse_iterator<const_iterator>;
+  /** } */
 
-  using size_type = typename iterator::size_type;
+  /**
+   * @defgroup Iterator traits {
+   */
   using difference_type = typename iterator::difference_type;
   using value_type = typename iterator::value_type;
   using reference = typename iterator::reference;
-  using const_reference = typename iterator::const_reference;
   using pointer = typename iterator::pointer;
-  using const_pointer = typename iterator::const_pointer;
+  /** } */
+
+  /**
+   * @defgroup Self traits {
+   */
+  using size_type = std::size_t;
+  using const_reference = const value_type&;
+  using const_pointer = const value_type*;
+  /** } */
 
  public: // constructors
   explicit Vector(size_type sz = 0, const_reference val = value_type())

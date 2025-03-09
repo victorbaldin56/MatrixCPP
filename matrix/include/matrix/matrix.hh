@@ -12,6 +12,8 @@
 
 #include "vector/vector.hh"
 
+#include "detail/diag_iterator.hh"
+
 #include "comparator.hh"
 
 namespace matrix {
@@ -22,21 +24,30 @@ class Matrix {
   // 1. Positive attitude to cache effects.
   // 2. Less dynamic memory allocations.
   // 3. Less indirections.
-  using ContigiousContainer
-      = typename vector::Vector<T>; /** stores matrix data */
+  using ContigiousContainer =
+      typename vector::Vector<T>; /** stores matrix data */
 
  public: // member types
   using iterator = typename ContigiousContainer::iterator;
   using const_iterator = typename ContigiousContainer::const_iterator;
   using reverse_iterator = typename ContigiousContainer::reverse_iterator;
-  using const_reverse_iterator
-      = typename ContigiousContainer::const_reverse_iterator;
+  using const_reverse_iterator =
+      typename ContigiousContainer::const_reverse_iterator;
   using value_type = typename ContigiousContainer::value_type;
   using reference = typename ContigiousContainer::reference;
   using const_reference = typename ContigiousContainer::const_reference;
   using pointer = typename ContigiousContainer::pointer;
   using difference_type = typename ContigiousContainer::difference_type;
   using size_type = typename ContigiousContainer::size_type;
+
+  /**
+   * @defgroup Diagonal iterators {
+   */
+  using diagonal_iterator =
+      detail::DiagIterBase<iterator, size_type>;
+  using const_diagonal_iterator =
+      detail::DiagIterBase<const_iterator, size_type>;
+  /** } */
 
  public: // constructors
   /** Creates and fills matrix with given value */
@@ -136,6 +147,19 @@ class Matrix {
   const_reverse_iterator crbegin() const noexcept { return data_.crbegin(); }
   const_reverse_iterator crend() const noexcept { return data_.crend(); }
 
+  diagonal_iterator diag_begin() noexcept {
+    return diagonal_iterator(data_.begin(), cols_);
+  }
+  diagonal_iterator diag_end() noexcept {
+    return diagonal_iterator(data_.end() + 1, cols_);
+  }
+  const_diagonal_iterator diag_cbegin() const noexcept {
+    return const_diagonal_iterator(data_.cbegin(), cols_);
+  }
+  const_diagonal_iterator diag_cend() const noexcept {
+    return const_diagonal_iterator(data_.cend() + 1, cols_);
+  }
+
  public: // modifiers
   void resize(size_type new_rows, size_type new_cols) {
     rows_ = new_rows;
@@ -228,9 +252,7 @@ class Matrix {
   /** Creates eye matrix */
   static Matrix eye(size_type n) {
     Matrix m(n, n);
-    for (std::size_t i = 0; i < m.rows(); ++i) {
-      m[i][i] = static_cast<value_type>(1);
-    }
+    std::fill(m.diag_begin(), m.diag_end(), static_cast<value_type>(1));
     return m;
   }
 
