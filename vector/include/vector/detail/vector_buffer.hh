@@ -25,10 +25,10 @@ void destroy(T* p) noexcept { p->~T(); }
 template <
       typename It,
       typename = std::enable_if<
-          std::is_base_of<
+          std::is_base_of_v<
               std::input_iterator_tag,
               typename
-                  std::iterator_traits<It>::iterator_category>::value>>
+                  std::iterator_traits<It>::iterator_category>>>
 void destroy(It begin, It end) noexcept {
   while (begin != end) {
     destroy(std::addressof(*begin++));
@@ -38,24 +38,15 @@ void destroy(It begin, It end) noexcept {
 
 template <typename T>
 struct VectorBuffer {
- public: // important typedefs
-  using value_type = T;
-  using reference = value_type&;
-  using const_reference = const value_type&;
-  using pointer = value_type*;
-  using const_pointer = const value_type*;
-  using size_type = std::size_t;
-  using difference_type = std::ptrdiff_t;
-
  public: // state
-  size_type sz_ = 0;
-  size_type cap_;
-  pointer data_;
+  std::size_t sz_ = 0;
+  std::size_t cap_;
+  T* data_;
 
  public: // constructors and destructor
-  VectorBuffer(size_type cap)
+  VectorBuffer(std::size_t cap)
       : data_(cap
-              ? static_cast<T*>(::operator new(cap * sizeof(value_type)))
+              ? static_cast<T*>(::operator new(cap * sizeof(T)))
               : nullptr),
         cap_(cap) {}
 

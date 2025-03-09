@@ -5,8 +5,8 @@
 #pragma once
 
 #include <initializer_list>
-#include <iterator>
 
+#include "detail/iterator_base.hh"
 #include "detail/vector_buffer.hh"
 
 namespace vector {
@@ -14,111 +14,19 @@ namespace vector {
 /** As just std::vector, no virtual destructors. */
 template <typename T>
 class Vector : private detail::VectorBuffer<T> {
- private:
-  /** iterator to the vector */
-  template <bool IsConst>
-  struct IteratorBase {
-    using iterator_category = std::random_access_iterator_tag;
-    using difference_type
-        = typename detail::VectorBuffer<T>::difference_type;
-    using size_type = typename detail::VectorBuffer<T>::size_type;
-    using value_type = T;
-    using pointer
-        = typename
-              std::conditional<
-                  IsConst,
-                  typename detail::VectorBuffer<T>::const_pointer,
-                  typename detail::VectorBuffer<T>::pointer>::type;
-    using reference
-        = typename
-              std::conditional<
-                  IsConst,
-                  typename detail::VectorBuffer<T>::const_reference,
-                  typename detail::VectorBuffer<T>::reference>::type;
-
-    explicit IteratorBase(pointer p) { ptr_ = p; }
-
-    reference operator*() { return *ptr_; }
-    pointer operator->() { return ptr_; }
-
-    // prefix increment
-    IteratorBase& operator++() {
-      ++ptr_;
-      return *this;
-    }
-    // postfix increment
-    IteratorBase operator++(int) {
-      IteratorBase tmp = *this;
-      ++*this;
-      return tmp;
-    }
-    // prefix decrement
-    IteratorBase& operator--() {
-      --ptr_;
-      return *this;
-    }
-    // postfix decrement
-    IteratorBase operator--(int) {
-      IteratorBase tmp = *this;
-      --*this;
-      return tmp;
-    }
-    IteratorBase operator+(difference_type n) const {
-      return IteratorBase(ptr_ + n);
-    }
-    IteratorBase operator-(difference_type n) const {
-      return IteratorBase(ptr_ - n);
-    }
-    difference_type operator-(const IteratorBase& other) const {
-      return ptr_ - other.ptr_;
-    }
-    IteratorBase& operator+=(difference_type n) {
-      ptr_ += n;
-      return *this;
-    }
-    IteratorBase& operator-=(difference_type n) {
-      ptr_ -= n;
-      return *this;
-    }
-
-    reference operator[](size_type pos) { return ptr_[pos]; }
-
-    bool operator==(const IteratorBase& other) const {
-      return ptr_ == other.ptr_;
-    }
-    bool operator!=(const IteratorBase& other) const {
-      return ptr_ != other.ptr_;
-    }
-    bool operator<(const IteratorBase& other) const {
-      return ptr_ < other.ptr_;
-    }
-    bool operator>(const IteratorBase& other) const {
-      return ptr_ > other.ptr_;
-    }
-    bool operator<=(const IteratorBase& other) const {
-      return ptr_ <= other.ptr_;
-    }
-    bool operator>=(const IteratorBase& other) const {
-      return ptr_ >= other.ptr_;
-    }
-
-   private:
-    pointer ptr_;
-  };
-
  public: // member types
-  using iterator = IteratorBase<false>;
-  using const_iterator = IteratorBase<true>;
+  using iterator = detail::IteratorBase<T>;
+  using const_iterator = detail::IteratorBase<const T>;
   using reverse_iterator = std::reverse_iterator<iterator>;
   using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
-  using typename detail::VectorBuffer<T>::size_type;
-  using typename detail::VectorBuffer<T>::difference_type;
-  using typename detail::VectorBuffer<T>::value_type;
-  using typename detail::VectorBuffer<T>::reference;
-  using typename detail::VectorBuffer<T>::const_reference;
-  using typename detail::VectorBuffer<T>::pointer;
-  using typename detail::VectorBuffer<T>::const_pointer;
+  using size_type = typename iterator::size_type;
+  using difference_type = typename iterator::difference_type;
+  using value_type = typename iterator::value_type;
+  using reference = typename iterator::reference;
+  using const_reference = typename iterator::const_reference;
+  using pointer = typename iterator::pointer;
+  using const_pointer = typename iterator::const_pointer;
 
  public: // constructors
   explicit Vector(size_type sz = 0, const_reference val = value_type())
