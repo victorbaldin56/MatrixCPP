@@ -58,7 +58,9 @@ struct DiagIterBase {
     return *this;
   }
 
-  reference operator[](difference_type pos) noexcept { return iter_[pos]; }
+  reference operator[](difference_type pos) noexcept {
+    return iter_[pos * step_];
+  }
 
   auto operator<=>(const DiagIterBase& other) {
     return iter_ <=> other.iter_;

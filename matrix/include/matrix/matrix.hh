@@ -12,7 +12,7 @@
 
 #include "vector/vector.hh"
 
-#include "detail/diag_iterator.hh"
+// #include "detail/diag_iterator.hh"
 
 #include "comparator.hh"
 
@@ -40,14 +40,14 @@ class Matrix {
   using difference_type = typename ContigiousContainer::difference_type;
   using size_type = typename ContigiousContainer::size_type;
 
-  /**
-   * @defgroup Diagonal iterators {
-   */
-  using diagonal_iterator =
-      detail::DiagIterBase<iterator, size_type>;
-  using const_diagonal_iterator =
-      detail::DiagIterBase<const_iterator, size_type>;
-  /** } */
+  // /**
+  //  * @defgroup Diagonal iterators {
+  //  */
+  // using diagonal_iterator =
+  //     detail::DiagIterBase<iterator, size_type>;
+  // using const_diagonal_iterator =
+  //     detail::DiagIterBase<const_iterator, size_type>;
+  // /** } */
 
  public: // constructors
   /** Creates and fills matrix with given value */
@@ -147,18 +147,18 @@ class Matrix {
   const_reverse_iterator crbegin() const noexcept { return data_.crbegin(); }
   const_reverse_iterator crend() const noexcept { return data_.crend(); }
 
-  diagonal_iterator diag_begin() noexcept {
-    return diagonal_iterator(data_.begin(), cols_);
-  }
-  diagonal_iterator diag_end() noexcept {
-    return diagonal_iterator(data_.end() + 1, cols_);
-  }
-  const_diagonal_iterator diag_cbegin() const noexcept {
-    return const_diagonal_iterator(data_.cbegin(), cols_);
-  }
-  const_diagonal_iterator diag_cend() const noexcept {
-    return const_diagonal_iterator(data_.cend() + 1, cols_);
-  }
+  // diagonal_iterator diag_begin() noexcept {
+  //   return diagonal_iterator(data_.begin(), cols_);
+  // }
+  // diagonal_iterator diag_end() noexcept {
+  //   return diagonal_iterator(data_.end() + 1, cols_);
+  // }
+  // const_diagonal_iterator diag_cbegin() const noexcept {
+  //   return const_diagonal_iterator(data_.cbegin(), cols_);
+  // }
+  // const_diagonal_iterator diag_cend() const noexcept {
+  //   return const_diagonal_iterator(data_.cend() + 1, cols_);
+  // }
 
  public: // modifiers
   void resize(size_type new_rows, size_type new_cols) {
@@ -252,7 +252,9 @@ class Matrix {
   /** Creates eye matrix */
   static Matrix eye(size_type n) {
     Matrix m(n, n);
-    std::fill(m.diag_begin(), m.diag_end(), static_cast<value_type>(1));
+    for (auto i = std::size_t{0}; i < n; ++i) {
+      m[i][i] = static_cast<value_type>(1);
+    }
     return m;
   }
 
