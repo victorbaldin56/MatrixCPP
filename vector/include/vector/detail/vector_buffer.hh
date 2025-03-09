@@ -7,17 +7,18 @@
 #include <cstddef>
 #include <memory>
 
-/** FOR INTERNAL PURPOSES ONLY. DO NOT USE IN USER PROGRAM */
+/**
+ * FOR INTERNAL PURPOSES ONLY. DO NOT USE IN USER PROGRAM
+ */
 namespace vector::detail {
 
 /**
  * @defgroup Helper functions {
  */
-template <typename T>
-void construct(T* p, T&& v) { new(p) T(std::move(v)); }
-
-template <typename T>
-void construct(T* p, const T& v) { new(p) T(v); }
+template <typename T, typename... Args>
+void construct(T* p, Args&& ... args) {
+  new(p) T(std::forward<Args>(args)...);
+}
 
 template <typename T>
 void destroy(T* p) noexcept { p->~T(); }
@@ -27,8 +28,7 @@ template <
       typename = std::enable_if<
           std::is_base_of_v<
               std::input_iterator_tag,
-              typename
-                  std::iterator_traits<It>::iterator_category>>>
+              typename std::iterator_traits<It>::iterator_category>>>
 void destroy(It begin, It end) noexcept {
   while (begin != end) {
     destroy(std::addressof(*begin++));

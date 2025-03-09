@@ -5,13 +5,16 @@
 #pragma once
 
 #include <initializer_list>
+#include <utility>
 
 #include "detail/iterator_base.hh"
 #include "detail/vector_buffer.hh"
 
 namespace vector {
 
-/** As just std::vector, no virtual destructors. */
+/**
+ * Custom std::vector.
+ */
 template <typename T>
 class Vector : private detail::VectorBuffer<T> {
  public: // member types
@@ -31,50 +34,30 @@ class Vector : private detail::VectorBuffer<T> {
  public: // constructors
   explicit Vector(size_type sz = 0, const_reference val = value_type())
       : detail::VectorBuffer<value_type>(sz) {
-    while (sz_ < cap_) {
-      detail::construct(data_ + sz_, val);
-      ++sz_;
-    }
+    std::fill_n(std::back_inserter(*this), sz, val);
   }
 
   template <
       typename It,
       typename = std::enable_if<
-          std::is_base_of<
+          std::is_base_of_v<
               std::input_iterator_tag,
               typename
-                  std::iterator_traits<It>::iterator_category>::value>>
+                  std::iterator_traits<It>::iterator_category>>>
   Vector(It begin, It end)
       : detail::VectorBuffer<value_type>(std::distance(begin, end)) {
-    std::for_each(begin, end,
-                  [this](auto&& v) {
-                    detail::construct(data_ + sz_, v);
-                    ++sz_;
-                  });
+    std::copy(begin, end, std::back_inserter(*this));
   }
 
   Vector(std::initializer_list<value_type> ilist)
       : Vector(ilist.begin(), ilist.end()) {}
-
-  Vector& operator=(std::initializer_list<value_type> ilist) {
-    clear();
-    reserve(ilist.size());
-    std::for_each(ilist.begin(), ilist.end(),
-                  [this](auto&& v) {
-                    detail::construct(data_ + sz_, v);
-                    ++sz_;
-                  });
-  }
 
   Vector(Vector&& rhs) noexcept = default;
   Vector& operator=(Vector&& rhs) noexcept = default;
 
   Vector(const Vector& rhs)
       : detail::VectorBuffer<value_type>(rhs.sz_) {
-    while (sz_ < rhs.sz_) {
-      detail::construct(data_ + sz_, rhs.data_[sz_]);
-      ++sz_;
-    }
+    std::copy(rhs.cbegin(), rhs.cend(), std::back_inserter(*this));
   }
 
   Vector& operator=(const Vector& rhs) {
@@ -147,22 +130,24 @@ class Vector : private detail::VectorBuffer<T> {
     }
 
     reserve(new_sz);
-    while (sz_ < new_sz) {
-      push_back(v);
-    }
+    std::fill_n(std::back_inserter(*this), new_sz - sz_, v);
   }
 
-  void push_back(const_reference v) {
-    auto tmp(v);
-    push_back(std::move(tmp));
-  }
-
-  void push_back(value_type&& v) {
+  template <typename... Args>
+  void emplace_back(Args&& ... args) {
     if (sz_ == cap_) {
       reserve(getNextCap(cap_));
     }
-    detail::construct(data_ + sz_, v);
+    detail::construct(data_ + sz_, std::forward<Args>(args)...);
     ++sz_;
+  }
+
+  void push_back(value_type&& v) {
+    emplace_back(v);
+  }
+
+  void push_back(const_reference v) {
+    emplace_back(v);
   }
 
   void clear() noexcept {
