@@ -44,7 +44,7 @@ struct VectorBuffer {
   T* data_;
 
  public: // constructors and destructor
-  VectorBuffer(std::size_t cap)
+  explicit VectorBuffer(std::size_t cap)
       : data_(cap
               ? static_cast<T*>(::operator new(cap * sizeof(T)))
               : nullptr),
