@@ -69,7 +69,7 @@ struct IteratorBase {
     return *this;
   }
 
-  reference operator[](size_type pos) { return ptr_[pos]; }
+  reference operator[](size_type pos) noexcept { return ptr_[pos]; }
 
   bool operator==(const IteratorBase& other) const noexcept {
     return ptr_ == other.ptr_;
