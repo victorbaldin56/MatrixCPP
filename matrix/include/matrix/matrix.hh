@@ -17,20 +17,20 @@
 namespace matrix {
 
 template <typename T, typename = std::enable_if<std::is_arithmetic_v<T>>>
-class Matrix {
+class Matrix final {
   // Contigious storage chosen here because of
   // 1. Positive attitude to cache effects.
   // 2. Less dynamic memory allocations.
   // 3. Less indirections.
-  using ContigiousContainer
-      = typename vector::Vector<T>; /** stores matrix data */
+  using ContigiousContainer =
+      typename vector::Vector<T>; ///< stores matrix data
 
  public: // member types
   using iterator = typename ContigiousContainer::iterator;
   using const_iterator = typename ContigiousContainer::const_iterator;
   using reverse_iterator = typename ContigiousContainer::reverse_iterator;
-  using const_reverse_iterator
-      = typename ContigiousContainer::const_reverse_iterator;
+  using const_reverse_iterator =
+      typename ContigiousContainer::const_reverse_iterator;
   using value_type = typename ContigiousContainer::value_type;
   using reference = typename ContigiousContainer::reference;
   using const_reference = typename ContigiousContainer::const_reference;
@@ -40,52 +40,37 @@ class Matrix {
 
  public: // constructors
   /** Creates and fills matrix with given value */
-  Matrix(size_type rows = 0, size_type cols = 0, const_reference val = value_type())
+  explicit Matrix(size_type rows = 0, size_type cols = 0,
+                  const_reference val = value_type())
       : data_(rows * cols, val), rows_(rows), cols_(cols) {}
 
   /** Creates matrix from given sequence */
   template <
       typename It,
       typename = std::enable_if<
-          std::is_base_of<
+          std::is_base_of_v<
               std::input_iterator_tag,
-              typename
-                  std::iterator_traits<It>::iterator_category>::value>>
-  Matrix(size_type rows, size_type cols, It begin, It end)
-      : data_(begin, end) { resize(rows, cols); }
-
-  template <
-      typename It,
-      typename = std::enable_if<
-          std::is_base_of<
-              std::input_iterator_tag,
-              typename
-                  std::iterator_traits<It>::iterator_category>::value>>
-  Matrix(size_type cols, It begin, It end)
-      : data_(begin, end),
+              typename std::iterator_traits<It>::iterator_category>>>
+  Matrix(size_type rows, size_type cols, It begin)
+      : rows_(rows),
         cols_(cols) {
-    rows_ = std::ceil(static_cast<double>(data_.size()) / cols);
+    auto sz = rows_ * cols_;
+    data_.reserve(sz);
+    std::copy_n(begin, sz, std::back_inserter(data_));
   }
-
-  Matrix(size_type cols, std::initializer_list<value_type> ilist)
-      : Matrix(cols, ilist.begin(), ilist.end()) {}
 
   template <typename U>
   Matrix(const Matrix<U>& other)
       : rows_(other.rows()), cols_(other.cols()) {
     data_.reserve(rows_ * cols_);
-    std::for_each(
-        other.cbegin(), other.cend(),
-        [this](const auto& e) { data_.pushBack(static_cast<value_type>(e)); });
+    std::copy(other.cbegin(), other.cend(), std::back_inserter(data_));
   }
-
-  virtual ~Matrix() {}
 
  private:
   template <bool IsConst>
   class ProxyRowBase {
     using StoredIterator
-        = typename std::conditional<IsConst, const_iterator, iterator>::type;
+        = typename std::conditional_t<IsConst, const_iterator, iterator>;
 
     StoredIterator begin_;
     size_type cols_;
@@ -188,50 +173,40 @@ class Matrix {
       throw std::runtime_error("Matrix::det(): matrix size must be > 0");
     }
 
-    Matrix<double> mcopy(*this);
-    double sign = 1;
+    auto calc_matrix = Matrix<double>(*this);
+    auto sign = 1.0;
     for (size_type i = 0; i < cols_; ++i) {
       auto pivot = i;
       for (auto j = i + 1; j < rows_; ++j) {
-        if (std::abs(mcopy[j][i]) > std::abs(mcopy[pivot][i])) {
+        if (std::abs(calc_matrix[j][i]) > std::abs(calc_matrix[pivot][i])) {
           pivot = j;
         }
       }
 
-      if (mcopy.swapRows(i, pivot)) {
+      if (calc_matrix.swapRows(i, pivot)) {
         sign = -sign;
       }
 
-      if (comparator::isClose<double>(mcopy[i][i], 0)) {
+      if (comparator::isClose<double>(calc_matrix[i][i], 0)) {
         return 0;
       }
-      mcopy.simplifyRows(i);
+      calc_matrix.simplifyRows(i);
     }
 
     auto det = sign;
     for (size_type i = 0; i < rows_; ++i) {
-      auto&& elem = mcopy[i][i];
+      auto&& elem = calc_matrix[i][i];
       assert(std::isfinite(elem));
       det *= elem;
     }
     return det;
   }
 
- public: // assignments
-  Matrix& operator=(std::initializer_list<value_type> ilist) {
-    auto sz = ilist.size();
-    if (sz > rows_ * cols_) {
-      setRows(std::ceil(static_cast<double>(sz) / cols_));
-    }
-    std::copy(ilist.begin(), ilist.end(), data_.begin());
-    return *this;
-  }
-
  public: // static functions
   /** Creates eye matrix */
   static Matrix eye(size_type n) {
     Matrix m(n, n);
-    for (std::size_t i = 0; i < m.rows(); ++i) {
+    for (auto i = size_type{0}; i < n; ++i) {
       m[i][i] = static_cast<value_type>(1);
     }
     return m;

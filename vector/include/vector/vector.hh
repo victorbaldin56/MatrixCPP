@@ -5,168 +5,72 @@
 #pragma once
 
 #include <initializer_list>
-#include <iterator>
+#include <utility>
 
+#include "detail/iterator_base.hh"
 #include "detail/vector_buffer.hh"
 
 namespace vector {
 
-/** As just std::vector, no virtual destructors. */
+/**
+ * Custom std::vector.
+ */
 template <typename T>
-class Vector : private detail::VectorBuffer<T> {
- private:
-  /** iterator to the vector */
-  template <bool IsConst>
-  struct IteratorBase {
-    using iterator_category = std::random_access_iterator_tag;
-    using difference_type
-        = typename detail::VectorBuffer<T>::difference_type;
-    using size_type = typename detail::VectorBuffer<T>::size_type;
-    using value_type = T;
-    using pointer
-        = typename
-              std::conditional<
-                  IsConst,
-                  typename detail::VectorBuffer<T>::const_pointer,
-                  typename detail::VectorBuffer<T>::pointer>::type;
-    using reference
-        = typename
-              std::conditional<
-                  IsConst,
-                  typename detail::VectorBuffer<T>::const_reference,
-                  typename detail::VectorBuffer<T>::reference>::type;
-
-    explicit IteratorBase(pointer p) { ptr_ = p; }
-
-    reference operator*() { return *ptr_; }
-    pointer operator->() { return ptr_; }
-
-    // prefix increment
-    IteratorBase& operator++() {
-      ++ptr_;
-      return *this;
-    }
-    // postfix increment
-    IteratorBase operator++(int) {
-      IteratorBase tmp = *this;
-      ++*this;
-      return tmp;
-    }
-    // prefix decrement
-    IteratorBase& operator--() {
-      --ptr_;
-      return *this;
-    }
-    // postfix decrement
-    IteratorBase operator--(int) {
-      IteratorBase tmp = *this;
-      --*this;
-      return tmp;
-    }
-    IteratorBase operator+(difference_type n) const {
-      return IteratorBase(ptr_ + n);
-    }
-    IteratorBase operator-(difference_type n) const {
-      return IteratorBase(ptr_ - n);
-    }
-    difference_type operator-(const IteratorBase& other) const {
-      return ptr_ - other.ptr_;
-    }
-    IteratorBase& operator+=(difference_type n) {
-      ptr_ += n;
-      return *this;
-    }
-    IteratorBase& operator-=(difference_type n) {
-      ptr_ -= n;
-      return *this;
-    }
-
-    reference operator[](size_type pos) { return ptr_[pos]; }
-
-    bool operator==(const IteratorBase& other) const {
-      return ptr_ == other.ptr_;
-    }
-    bool operator!=(const IteratorBase& other) const {
-      return ptr_ != other.ptr_;
-    }
-    bool operator<(const IteratorBase& other) const {
-      return ptr_ < other.ptr_;
-    }
-    bool operator>(const IteratorBase& other) const {
-      return ptr_ > other.ptr_;
-    }
-    bool operator<=(const IteratorBase& other) const {
-      return ptr_ <= other.ptr_;
-    }
-    bool operator>=(const IteratorBase& other) const {
-      return ptr_ >= other.ptr_;
-    }
-
-   private:
-    pointer ptr_;
-  };
-
+class Vector final : private detail::VectorBuffer<T> {
  public: // member types
-  using iterator = IteratorBase<false>;
-  using const_iterator = IteratorBase<true>;
+  /**
+   * @defgroup Iterators {
+   */
+  using iterator = detail::IteratorBase<T>;
+  using const_iterator = detail::IteratorBase<const T>;
   using reverse_iterator = std::reverse_iterator<iterator>;
   using const_reverse_iterator = std::reverse_iterator<const_iterator>;
+  /** } */
 
-  using typename detail::VectorBuffer<T>::size_type;
-  using typename detail::VectorBuffer<T>::difference_type;
-  using typename detail::VectorBuffer<T>::value_type;
-  using typename detail::VectorBuffer<T>::reference;
-  using typename detail::VectorBuffer<T>::const_reference;
-  using typename detail::VectorBuffer<T>::pointer;
-  using typename detail::VectorBuffer<T>::const_pointer;
+  /**
+   * @defgroup Iterator traits {
+   */
+  using difference_type = typename iterator::difference_type;
+  using value_type = typename iterator::value_type;
+  using reference = typename iterator::reference;
+  using pointer = typename iterator::pointer;
+  /** } */
+
+  /**
+   * @defgroup Self traits {
+   */
+  using size_type = std::size_t;
+  using const_reference = const value_type&;
+  using const_pointer = const value_type*;
+  /** } */
 
  public: // constructors
   explicit Vector(size_type sz = 0, const_reference val = value_type())
       : detail::VectorBuffer<value_type>(sz) {
-    while (sz_ < cap_) {
-      detail::construct(data_ + sz_, val);
-      ++sz_;
-    }
+    std::fill_n(std::back_inserter(*this), sz, val);
   }
 
   template <
       typename It,
       typename = std::enable_if<
-          std::is_base_of<
+          std::is_base_of_v<
               std::input_iterator_tag,
               typename
-                  std::iterator_traits<It>::iterator_category>::value>>
+                  std::iterator_traits<It>::iterator_category>>>
   Vector(It begin, It end)
       : detail::VectorBuffer<value_type>(std::distance(begin, end)) {
-    std::for_each(begin, end,
-                  [this](auto&& v) {
-                    detail::construct(data_ + sz_, v);
-                    ++sz_;
-                  });
+    std::copy(begin, end, std::back_inserter(*this));
   }
 
   Vector(std::initializer_list<value_type> ilist)
       : Vector(ilist.begin(), ilist.end()) {}
-
-  Vector& operator=(std::initializer_list<value_type> ilist) {
-    clear();
-    reserve(ilist.size());
-    std::for_each(ilist.begin(), ilist.end(),
-                  [this](auto&& v) {
-                    detail::construct(data_ + sz_, v);
-                    ++sz_;
-                  });
-  }
 
   Vector(Vector&& rhs) noexcept = default;
   Vector& operator=(Vector&& rhs) noexcept = default;
 
   Vector(const Vector& rhs)
       : detail::VectorBuffer<value_type>(rhs.sz_) {
-    while (sz_ < rhs.sz_) {
-      detail::construct(data_ + sz_, rhs.data_[sz_]);
-      ++sz_;
-    }
+    std::copy(rhs.cbegin(), rhs.cend(), std::back_inserter(*this));
   }
 
   Vector& operator=(const Vector& rhs) {
@@ -239,22 +143,24 @@ class Vector : private detail::VectorBuffer<T> {
     }
 
     reserve(new_sz);
-    while (sz_ < new_sz) {
-      pushBack(v);
-    }
+    std::fill_n(std::back_inserter(*this), new_sz - sz_, v);
   }
 
-  void pushBack(const_reference v) {
-    auto tmp(v);
-    pushBack(std::move(tmp));
-  }
-
-  void pushBack(value_type&& v) {
+  template <typename... Args>
+  void emplace_back(Args&& ... args) {
     if (sz_ == cap_) {
       reserve(getNextCap(cap_));
     }
-    detail::construct(data_ + sz_, v);
+    detail::construct(data_ + sz_, std::forward<Args>(args)...);
     ++sz_;
+  }
+
+  void push_back(value_type&& v) {
+    emplace_back(v);
+  }
+
+  void push_back(const_reference v) {
+    emplace_back(v);
   }
 
   void clear() noexcept {
@@ -262,7 +168,7 @@ class Vector : private detail::VectorBuffer<T> {
     sz_ = 0;
   }
 
-  void popBack() noexcept {
+  void pop_back() noexcept {
     --sz_;
     detail::destroy(data_ + sz_);
   }
