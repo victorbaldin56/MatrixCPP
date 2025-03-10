@@ -17,7 +17,7 @@
 namespace matrix {
 
 template <typename T, typename = std::enable_if<std::is_arithmetic_v<T>>>
-class Matrix {
+class Matrix final {
   // Contigious storage chosen here because of
   // 1. Positive attitude to cache effects.
   // 2. Less dynamic memory allocations.
@@ -65,8 +65,6 @@ class Matrix {
     data_.reserve(rows_ * cols_);
     std::copy(other.cbegin(), other.cend(), std::back_inserter(data_));
   }
-
-  virtual ~Matrix() {}
 
  private:
   template <bool IsConst>

@@ -16,7 +16,7 @@ namespace vector {
  * Custom std::vector.
  */
 template <typename T>
-class Vector : private detail::VectorBuffer<T> {
+class Vector final : private detail::VectorBuffer<T> {
  public: // member types
   /**
    * @defgroup Iterators {
