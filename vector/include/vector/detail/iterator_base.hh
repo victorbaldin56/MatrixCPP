@@ -68,7 +68,24 @@ struct IteratorBase {
 
   reference operator[](difference_type pos) noexcept { return ptr_[pos]; }
 
-  auto operator<=>(const IteratorBase& other) const noexcept = default;
+  bool operator==(const IteratorBase& other) const noexcept {
+    return ptr_ == other.ptr_;
+  }
+  bool operator!=(const IteratorBase& other) const noexcept {
+    return ptr_ != other.ptr_;
+  }
+  bool operator<(const IteratorBase& other) const noexcept {
+    return ptr_ < other.ptr_;
+  }
+  bool operator>(const IteratorBase& other) const noexcept {
+    return ptr_ > other.ptr_;
+  }
+  bool operator<=(const IteratorBase& other) const noexcept {
+    return ptr_ <= other.ptr_;
+  }
+  bool operator>=(const IteratorBase& other) const noexcept {
+    return ptr_ >= other.ptr_;
+  }
 
  private:
   pointer ptr_;
