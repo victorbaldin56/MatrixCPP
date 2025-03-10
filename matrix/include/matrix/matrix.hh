@@ -175,29 +175,29 @@ class Matrix {
       throw std::runtime_error("Matrix::det(): matrix size must be > 0");
     }
 
-    Matrix<double> mcopy(*this);
+    auto calc_matrix = Matrix<double>(*this);
     auto sign = 1.0;
     for (size_type i = 0; i < cols_; ++i) {
       auto pivot = i;
       for (auto j = i + 1; j < rows_; ++j) {
-        if (std::abs(mcopy[j][i]) > std::abs(mcopy[pivot][i])) {
+        if (std::abs(calc_matrix[j][i]) > std::abs(calc_matrix[pivot][i])) {
           pivot = j;
         }
       }
 
-      if (mcopy.swapRows(i, pivot)) {
+      if (calc_matrix.swapRows(i, pivot)) {
         sign = -sign;
       }
 
-      if (comparator::isClose<double>(mcopy[i][i], 0)) {
+      if (comparator::isClose<double>(calc_matrix[i][i], 0)) {
         return 0;
       }
-      mcopy.simplifyRows(i);
+      calc_matrix.simplifyRows(i);
     }
 
     auto det = sign;
     for (size_type i = 0; i < rows_; ++i) {
-      auto&& elem = mcopy[i][i];
+      auto&& elem = calc_matrix[i][i];
       assert(std::isfinite(elem));
       det *= elem;
     }
