@@ -176,7 +176,7 @@ class Matrix {
     }
 
     Matrix<double> mcopy(*this);
-    double sign = 1;
+    auto sign = 1.0;
     for (size_type i = 0; i < cols_; ++i) {
       auto pivot = i;
       for (auto j = i + 1; j < rows_; ++j) {
@@ -202,16 +202,6 @@ class Matrix {
       det *= elem;
     }
     return det;
-  }
-
- public: // assignments
-  Matrix& operator=(std::initializer_list<value_type> ilist) {
-    auto sz = ilist.size();
-    if (sz > rows_ * cols_) {
-      setRows(std::ceil(static_cast<double>(sz) / cols_));
-    }
-    std::copy(ilist.begin(), ilist.end(), data_.begin());
-    return *this;
   }
 
  public: // static functions

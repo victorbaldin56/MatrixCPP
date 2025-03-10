@@ -27,21 +27,6 @@ TEST(matrix_ctor, ilist) {
   ASSERT_TRUE(std::equal(v.begin(), v.end(), m.begin()));
 }
 
-TEST(matrix_assign, ilist) {
-  matrix::Matrix<double> m(5, 6);
-  std::initializer_list<double> il{1, 2, 3, 4, 5, 6,
-                                   1, 2, 3, 4, 5, 6,
-                                   1, 2, 3, 4, 5, 6,
-                                   1, 2, 3, 4, 5, 6,
-                                   1, 2, 3, 4, 5, 6,
-                                   1, 2, 3, 4, 5, 6};
-  m = il;
-  std::vector<double> v(il);
-  ASSERT_EQ(m.cols(), 6);
-  ASSERT_EQ(m.rows(), 6);
-  ASSERT_TRUE(std::equal(v.begin(), v.end(), m.begin()));
-}
-
 TEST(det, simple) {
   std::vector<double> v{1,  2, 3,
                         4,  5, 6,
