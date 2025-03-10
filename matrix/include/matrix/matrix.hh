@@ -23,7 +23,7 @@ class Matrix {
   // 2. Less dynamic memory allocations.
   // 3. Less indirections.
   using ContigiousContainer =
-      typename vector::Vector<T>; /** stores matrix data */
+      typename vector::Vector<T>; ///< stores matrix data
 
  public: // member types
   using iterator = typename ContigiousContainer::iterator;
@@ -40,8 +40,8 @@ class Matrix {
 
  public: // constructors
   /** Creates and fills matrix with given value */
-  Matrix(size_type rows = 0, size_type cols = 0,
-         const_reference val = value_type())
+  explicit Matrix(size_type rows = 0, size_type cols = 0,
+                  const_reference val = value_type())
       : data_(rows * cols, val), rows_(rows), cols_(cols) {}
 
   /** Creates matrix from given sequence */
@@ -51,23 +51,13 @@ class Matrix {
           std::is_base_of_v<
               std::input_iterator_tag,
               typename std::iterator_traits<It>::iterator_category>>>
-  Matrix(size_type rows, size_type cols, It begin, It end)
-      : data_(begin, end) { resize(rows, cols); }
-
-  template <
-      typename It,
-      typename = std::enable_if<
-          std::is_base_of_v<
-              std::input_iterator_tag,
-              typename std::iterator_traits<It>::iterator_category>>>
-  Matrix(size_type cols, It begin, It end)
-      : data_(begin, end),
+  Matrix(size_type rows, size_type cols, It begin)
+      : rows_(rows),
         cols_(cols) {
-    rows_ = std::ceil(static_cast<double>(data_.size()) / cols);
+    auto sz = rows_ * cols_;
+    data_.reserve(sz);
+    std::copy_n(begin, sz, std::back_inserter(data_));
   }
-
-  Matrix(size_type cols, std::initializer_list<value_type> ilist)
-      : Matrix(cols, ilist.begin(), ilist.end()) {}
 
   template <typename U>
   Matrix(const Matrix<U>& other)
