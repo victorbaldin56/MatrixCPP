@@ -72,7 +72,7 @@ class Matrix {
   template <bool IsConst>
   class ProxyRowBase {
     using StoredIterator
-        = typename std::conditional<IsConst, const_iterator, iterator>::type;
+        = typename std::conditional_t<IsConst, const_iterator, iterator>;
 
     StoredIterator begin_;
     size_type cols_;

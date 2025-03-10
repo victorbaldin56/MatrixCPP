@@ -11,15 +11,15 @@ struct IteratorBase {
   using difference_type = std::ptrdiff_t;
   using value_type = ValueType;
   using pointer
-      = typename std::conditional<
+      = typename std::conditional_t<
                 std::is_const_v<value_type>,
                 const value_type*,
-                value_type*>::type;
+                value_type*>;
   using reference
-      = typename std::conditional<
+      = typename std::conditional_t<
             std::is_const_v<value_type>,
             const value_type&,
-            value_type&>::type;
+            value_type&>;
 
   explicit IteratorBase(pointer p) noexcept : ptr_(p) {};
 
