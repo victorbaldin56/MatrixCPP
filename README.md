@@ -42,20 +42,20 @@ After installing dependencies listed above, follow these steps:
    conan profile detect --force
    ```
 
-1. Install Conan requirements and toolchain:
+2. Install Conan requirements and toolchain:
 
    ```sh
    conan install . --output-folder=build --build=missing
    ```
 
-1. Configure CMake:
+3. Configure CMake:
 
    ```sh
    cd build
    cmake .. --preset conan-release
    ```
 
-1. Build:
+4. Build:
 
    ```sh
    cmake --build . -j
