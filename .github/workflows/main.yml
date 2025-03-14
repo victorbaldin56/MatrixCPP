@@ -39,7 +39,7 @@ jobs:
       run: python3 -m venv .venv;
            source .venv/bin/activate;
            echo PATH=$PATH >> $GITHUB_ENV;
-           pip install conan==2.12.1;
+           pip install conan==2.12.1 numpy==2.2.2;
 
     - name: Install conan requirements
       run: >
