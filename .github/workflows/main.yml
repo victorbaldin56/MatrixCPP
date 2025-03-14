@@ -58,5 +58,4 @@ jobs:
         cmake --build build -j
 
     - name: Test
-      if: ${{ matrix.build_type == 'debug' }}
       run: ctest --output-on-failure --test-dir build -j --no-tests=error
