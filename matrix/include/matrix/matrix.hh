@@ -16,8 +16,10 @@
 
 namespace matrix {
 
-template <typename T, typename = std::enable_if<std::is_arithmetic_v<T>>>
+template <typename T>
 class Matrix final {
+  static_assert(std::is_arithmetic_v<T>);
+
   // Contigious storage chosen here because of
   // 1. Positive attitude to cache effects.
   // 2. Less dynamic memory allocations.
@@ -47,7 +49,7 @@ class Matrix final {
   /** Creates matrix from given sequence */
   template <
       typename It,
-      typename = std::enable_if<
+      typename = std::enable_if_t<
           std::is_base_of_v<
               std::input_iterator_tag,
               typename std::iterator_traits<It>::iterator_category>>>
@@ -78,15 +80,15 @@ class Matrix final {
    public:
     ProxyRowBase(StoredIterator p, size_type cols) noexcept : begin_(p), cols_(cols) {}
 
-    template <typename = std::enable_if<!IsConst>>
+    template <typename = std::enable_if_t<!IsConst>>
     reference operator[](size_type pos) { return begin_[pos]; }
 
     const_reference operator[](size_type pos) const { return begin_[pos]; }
 
-    template <typename = std::enable_if<!IsConst>>
+    template <typename = std::enable_if_t<!IsConst>>
     StoredIterator begin() { return begin_; }
 
-    template <typename = std::enable_if<!IsConst>>
+    template <typename = std::enable_if_t<!IsConst>>
     StoredIterator end() { return begin_ + cols_; }
 
     const_iterator cbegin() const { return begin_; }
@@ -144,7 +146,6 @@ class Matrix final {
   }
 
   // currently supports only floating point calculations
-  template <typename = std::enable_if<std::is_floating_point_v<value_type>>>
   void simplifyRows(size_type idx) {
     auto base_row = operator[](idx);
     auto base_elem = base_row[idx];

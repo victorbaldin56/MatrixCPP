@@ -23,6 +23,7 @@ TEST(matrix_ctor, ilist) {
                                 1, 2, 3, 4, 5, 6,
                                 1, 2, 3, 4, 5, 6};
   std::vector<int> v(il);
+  vector::Vector<int> vc(il.begin(), il.end());
   matrix::Matrix<int> m(6, 6, il.begin());
   ASSERT_TRUE(std::equal(v.begin(), v.end(), m.begin()));
 }
