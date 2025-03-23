@@ -3,7 +3,6 @@
 #include <vector>
 
 #include "gtest/gtest.h"
-
 #include "vector/vector.hh"
 
 TEST(vector, size_constructor) {
@@ -31,16 +30,16 @@ TEST(vector, two_iter_constructor) {
 
 TEST(vector, reserve) {
   vector::Vector<std::vector<int>> vv{
-    {1, 2, 3, 4, 5},
-    {2, 3, 4, 5, 0},
-    {2, 3, 4, 89},
+      {1, 2, 3, 4, 5},
+      {2, 3, 4, 5, 0},
+      {2, 3, 4, 89},
   };
   auto tmp = vv.data();
 
   std::vector<std::vector<int>> stdvv{
-    {1, 2, 3, 4, 5},
-    {2, 3, 4, 5, 0},
-    {2, 3, 4, 89},
+      {1, 2, 3, 4, 5},
+      {2, 3, 4, 5, 0},
+      {2, 3, 4, 89},
   };
 
   stdvv.resize(100000);

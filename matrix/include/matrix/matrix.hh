@@ -5,14 +5,13 @@
 
 #include <algorithm>
 #include <cassert>
-#include <cstddef>
 #include <cmath>
+#include <cstddef>
 #include <stdexcept>
 #include <type_traits>
 
-#include "vector/vector.hh"
-
 #include "comparator.hh"
+#include "vector/vector.hh"
 
 namespace matrix {
 
@@ -25,9 +24,9 @@ class Matrix final {
   // 2. Less dynamic memory allocations.
   // 3. Less indirections.
   using ContigiousContainer =
-      typename vector::Vector<T>; ///< stores matrix data
+      typename vector::Vector<T>;  ///< stores matrix data
 
- public: // member types
+ public:  // member types
   using iterator = typename ContigiousContainer::iterator;
   using const_iterator = typename ContigiousContainer::const_iterator;
   using reverse_iterator = typename ContigiousContainer::reverse_iterator;
@@ -40,30 +39,25 @@ class Matrix final {
   using difference_type = typename ContigiousContainer::difference_type;
   using size_type = typename ContigiousContainer::size_type;
 
- public: // constructors
+ public:  // constructors
   /** Creates and fills matrix with given value */
   explicit Matrix(size_type rows = 0, size_type cols = 0,
                   const_reference val = value_type())
       : data_(rows * cols, val), rows_(rows), cols_(cols) {}
 
   /** Creates matrix from given sequence */
-  template <
-      typename It,
-      typename = std::enable_if_t<
-          std::is_base_of_v<
-              std::input_iterator_tag,
-              typename std::iterator_traits<It>::iterator_category>>>
-  Matrix(size_type rows, size_type cols, It begin)
-      : rows_(rows),
-        cols_(cols) {
+  template <typename It,
+            typename = std::enable_if_t<std::is_base_of_v<
+                std::input_iterator_tag,
+                typename std::iterator_traits<It>::iterator_category>>>
+  Matrix(size_type rows, size_type cols, It begin) : rows_(rows), cols_(cols) {
     auto sz = rows_ * cols_;
     data_.reserve(sz);
     std::copy_n(begin, sz, std::back_inserter(data_));
   }
 
   template <typename U>
-  Matrix(const Matrix<U>& other)
-      : rows_(other.rows()), cols_(other.cols()) {
+  Matrix(const Matrix<U>& other) : rows_(other.rows()), cols_(other.cols()) {
     data_.reserve(rows_ * cols_);
     std::copy(other.cbegin(), other.cend(), std::back_inserter(data_));
   }
@@ -71,35 +65,42 @@ class Matrix final {
  private:
   template <bool IsConst>
   class ProxyRowBase {
-    using StoredIterator
-        = typename std::conditional_t<IsConst, const_iterator, iterator>;
+    using StoredIterator =
+        typename std::conditional_t<IsConst, const_iterator, iterator>;
 
     StoredIterator begin_;
     size_type cols_;
 
    public:
-    ProxyRowBase(StoredIterator p, size_type cols) noexcept : begin_(p), cols_(cols) {}
+    ProxyRowBase(StoredIterator p, size_type cols) noexcept
+        : begin_(p), cols_(cols) {}
 
     template <typename = std::enable_if_t<!IsConst>>
-    reference operator[](size_type pos) { return begin_[pos]; }
+    reference operator[](size_type pos) {
+      return begin_[pos];
+    }
 
     const_reference operator[](size_type pos) const { return begin_[pos]; }
 
     template <typename = std::enable_if_t<!IsConst>>
-    StoredIterator begin() { return begin_; }
+    StoredIterator begin() {
+      return begin_;
+    }
 
     template <typename = std::enable_if_t<!IsConst>>
-    StoredIterator end() { return begin_ + cols_; }
+    StoredIterator end() {
+      return begin_ + cols_;
+    }
 
     const_iterator cbegin() const { return begin_; }
     const_iterator cend() const { return begin_ + cols_; }
   };
 
- public: // member types
+ public:  // member types
   using ProxyRow = ProxyRowBase<false>;
   using ConstProxyRow = ProxyRowBase<true>;
 
- public: // accessors
+ public:  // accessors
   ProxyRow operator[](size_type pos) noexcept {
     return ProxyRow(data_.begin() + pos * cols_, cols_);
   }
@@ -115,7 +116,7 @@ class Matrix final {
 
   bool isSquare() const noexcept { return rows_ == cols_; }
 
- public: // iterators
+ public:  // iterators
   iterator begin() noexcept { return data_.begin(); }
   iterator end() noexcept { return data_.end(); }
   const_iterator cbegin() const noexcept { return data_.cbegin(); }
@@ -126,7 +127,7 @@ class Matrix final {
   const_reverse_iterator crbegin() const noexcept { return data_.crbegin(); }
   const_reverse_iterator crend() const noexcept { return data_.crend(); }
 
- public: // modifiers
+ public:  // modifiers
   void resize(size_type new_rows, size_type new_cols) {
     rows_ = new_rows;
     cols_ = new_cols;
@@ -158,13 +159,12 @@ class Matrix final {
       auto cur_row_begin = cur_row.begin();
       auto coef = cur_row[idx] / base_elem;
       std::transform(
-          base_row_begin, base_row_end,
-          cur_row_begin, cur_row_begin,
+          base_row_begin, base_row_end, cur_row_begin, cur_row_begin,
           [coef](const auto& a, const auto& b) { return b - coef * a; });
     }
   }
 
- public: // computing functions
+ public:  // computing functions
   double det() const {
     if (!isSquare()) {
       throw std::runtime_error("Matrix::det(): rows_ != cols_");
@@ -203,7 +203,7 @@ class Matrix final {
     return det;
   }
 
- public: // static functions
+ public:  // static functions
   /** Creates eye matrix */
   static Matrix eye(size_type n) {
     Matrix m(n, n);
@@ -219,4 +219,4 @@ class Matrix final {
   ContigiousContainer data_;
 };
 
-} // namespace matrix
+}  // namespace matrix

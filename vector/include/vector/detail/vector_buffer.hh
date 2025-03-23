@@ -16,17 +16,17 @@ namespace vector::detail {
  * @defgroup Helper functions {
  */
 template <typename T, typename... Args>
-void construct(T* p, Args&& ... args) {
-  new(p) T(std::forward<Args>(args)...);
+void construct(T* p, Args&&... args) {
+  new (p) T(std::forward<Args>(args)...);
 }
 
 template <typename T>
-void destroy(T* p) noexcept { p->~T(); }
+void destroy(T* p) noexcept {
+  p->~T();
+}
 
-template <
-      typename It,
-      typename = std::enable_if_t<
-          std::is_base_of_v<
+template <typename It,
+          typename = std::enable_if_t<std::is_base_of_v<
               std::input_iterator_tag,
               typename std::iterator_traits<It>::iterator_category>>>
 void destroy(It begin, It end) noexcept {
@@ -38,16 +38,14 @@ void destroy(It begin, It end) noexcept {
 
 template <typename T>
 struct VectorBuffer {
- public: // state
+ public:  // state
   std::size_t sz_ = 0;
   std::size_t cap_;
   T* data_;
 
- public: // constructors and destructor
+ public:  // constructors and destructor
   explicit VectorBuffer(std::size_t cap)
-      : data_(cap
-              ? static_cast<T*>(::operator new(cap * sizeof(T)))
-              : nullptr),
+      : data_(cap ? static_cast<T*>(::operator new(cap * sizeof(T))) : nullptr),
         cap_(cap) {}
 
   VectorBuffer(const VectorBuffer& other) = delete;
@@ -71,4 +69,4 @@ struct VectorBuffer {
   }
 };
 
-} // namespace vector::detail
+}  // namespace vector::detail
