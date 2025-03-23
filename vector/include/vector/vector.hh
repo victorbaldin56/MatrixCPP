@@ -17,7 +17,7 @@ namespace vector {
  */
 template <typename T>
 class Vector final : private detail::VectorBuffer<T> {
- public: // member types
+ public:  // member types
   /**
    * @defgroup Iterators {
    */
@@ -44,18 +44,16 @@ class Vector final : private detail::VectorBuffer<T> {
   using const_pointer = const value_type*;
   /** } */
 
- public: // constructors
+ public:  // constructors
   explicit Vector(size_type sz = 0, const_reference val = value_type())
       : detail::VectorBuffer<value_type>(sz) {
     std::fill_n(std::back_inserter(*this), sz, val);
   }
 
-  template <
-      typename It,
-      typename = std::enable_if_t<
-          std::is_base_of_v<
-              std::input_iterator_tag,
-              typename std::iterator_traits<It>::iterator_category>>>
+  template <typename It,
+            typename = std::enable_if_t<std::is_base_of_v<
+                std::input_iterator_tag,
+                typename std::iterator_traits<It>::iterator_category>>>
   Vector(It begin, It end)
       : detail::VectorBuffer<value_type>(std::distance(begin, end)) {
     std::copy(begin, end, std::back_inserter(*this));
@@ -67,8 +65,7 @@ class Vector final : private detail::VectorBuffer<T> {
   Vector(Vector&& rhs) noexcept = default;
   Vector& operator=(Vector&& rhs) noexcept = default;
 
-  Vector(const Vector& rhs)
-      : detail::VectorBuffer<value_type>(rhs.sz_) {
+  Vector(const Vector& rhs) : detail::VectorBuffer<value_type>(rhs.sz_) {
     std::copy(rhs.cbegin(), rhs.cend(), std::back_inserter(*this));
   }
 
@@ -78,18 +75,14 @@ class Vector final : private detail::VectorBuffer<T> {
     return *this;
   }
 
- public: // iterators
+ public:  // iterators
   iterator begin() noexcept { return iterator(data_); }
   iterator end() noexcept { return iterator(data_ + sz_); }
   const_iterator cbegin() const noexcept { return const_iterator(data_); }
   const_iterator cend() const noexcept { return const_iterator(data_ + sz_); }
 
-  reverse_iterator rbegin() noexcept {
-    return reverse_iterator(end());
-  }
-  reverse_iterator rend() noexcept {
-    return reverse_iterator(begin());
-  }
+  reverse_iterator rbegin() noexcept { return reverse_iterator(end()); }
+  reverse_iterator rend() noexcept { return reverse_iterator(begin()); }
   const_reverse_iterator crbegin() const noexcept {
     return const_reverse_iterator(cend());
   }
@@ -97,7 +90,7 @@ class Vector final : private detail::VectorBuffer<T> {
     return const_reverse_iterator(cbegin());
   }
 
- public: // capacity
+ public:  // capacity
   void reserve(size_type new_cap) {
     if (new_cap <= cap_) {
       return;
@@ -119,7 +112,7 @@ class Vector final : private detail::VectorBuffer<T> {
 
   bool empty() const noexcept { return sz_; }
 
- public: // accessors
+ public:  // accessors
   pointer data() noexcept { return data_; }
   const_pointer data() const noexcept { return data_; }
 
@@ -133,7 +126,7 @@ class Vector final : private detail::VectorBuffer<T> {
     return data_[pos];
   }
 
- public: // modifiers
+ public:  // modifiers
   void resize(size_type new_sz, const value_type& v = value_type()) {
     if (new_sz <= sz_) {
       detail::destroy(data_ + new_sz, data_ + sz_);
@@ -146,7 +139,7 @@ class Vector final : private detail::VectorBuffer<T> {
   }
 
   template <typename... Args>
-  void emplace_back(Args&& ... args) {
+  void emplace_back(Args&&... args) {
     if (sz_ == cap_) {
       reserve(getNextCap(cap_));
     }
@@ -154,13 +147,9 @@ class Vector final : private detail::VectorBuffer<T> {
     ++sz_;
   }
 
-  void push_back(value_type&& v) {
-    emplace_back(v);
-  }
+  void push_back(value_type&& v) { emplace_back(v); }
 
-  void push_back(const_reference v) {
-    emplace_back(v);
-  }
+  void push_back(const_reference v) { emplace_back(v); }
 
   void clear() noexcept {
     detail::destroy(begin(), end());
@@ -173,9 +162,7 @@ class Vector final : private detail::VectorBuffer<T> {
   }
 
  private:
-  static size_type getNextCap(size_type cap) noexcept {
-    return (cap << 1) + 1;
-  }
+  static size_type getNextCap(size_type cap) noexcept { return (cap << 1) + 1; }
 
  private:
   using detail::VectorBuffer<T>::sz_;
@@ -183,4 +170,4 @@ class Vector final : private detail::VectorBuffer<T> {
   using detail::VectorBuffer<T>::data_;
 };
 
-} // namespace vector
+}  // namespace vector

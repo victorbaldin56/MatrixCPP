@@ -10,16 +10,10 @@ struct IteratorBase {
   using iterator_category = std::random_access_iterator_tag;
   using difference_type = std::ptrdiff_t;
   using value_type = ValueType;
-  using pointer
-      = typename std::conditional_t<
-                std::is_const_v<value_type>,
-                const value_type*,
-                value_type*>;
-  using reference
-      = typename std::conditional_t<
-            std::is_const_v<value_type>,
-            const value_type&,
-            value_type&>;
+  using pointer = typename std::conditional_t<std::is_const_v<value_type>,
+                                              const value_type*, value_type*>;
+  using reference = typename std::conditional_t<std::is_const_v<value_type>,
+                                                const value_type&, value_type&>;
 
   explicit IteratorBase(pointer p) noexcept : ptr_(p) {};
 
