@@ -25,7 +25,7 @@ void destroy(T* p) noexcept { p->~T(); }
 
 template <
       typename It,
-      typename = std::enable_if<
+      typename = std::enable_if_t<
           std::is_base_of_v<
               std::input_iterator_tag,
               typename std::iterator_traits<It>::iterator_category>>>

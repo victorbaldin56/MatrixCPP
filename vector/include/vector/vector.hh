@@ -52,11 +52,10 @@ class Vector final : private detail::VectorBuffer<T> {
 
   template <
       typename It,
-      typename = std::enable_if<
+      typename = std::enable_if_t<
           std::is_base_of_v<
               std::input_iterator_tag,
-              typename
-                  std::iterator_traits<It>::iterator_category>>>
+              typename std::iterator_traits<It>::iterator_category>>>
   Vector(It begin, It end)
       : detail::VectorBuffer<value_type>(std::distance(begin, end)) {
     std::copy(begin, end, std::back_inserter(*this));
