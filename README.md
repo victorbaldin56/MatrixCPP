@@ -61,18 +61,6 @@ After installing dependencies listed above, follow these steps:
    cmake --build . -j
    ```
 
-## Integration into existing CMake project
-
-If you want to use MatrixCPP as just header-only library
-you, write in your `CMakeLists.txt` the following:
-
-```cmake
-...
-add_subdirectory(MatrixCPP)
-target_link_libraries(${YOUR_TARGET} matrix)
-...
-```
-
 ## Usage
 
 To view docs for source code, run
