@@ -98,7 +98,13 @@ class Vector final : private detail::VectorBuffer<T> {
 
     detail::VectorBuffer<value_type> new_buf(new_cap);
     while (new_buf.sz_ < sz_) {
-      detail::construct(new_buf.data_ + new_buf.sz_, data_[new_buf.sz_]);
+      // to guarantee exception safety
+      if constexpr (std::is_nothrow_move_constructible_v<value_type>) {
+        detail::construct(new_buf.data_ + new_buf.sz_,
+                          std::move(data_[new_buf.sz_]));
+      } else {
+        detail::construct(new_buf.data_ + new_buf.sz_, data_[new_buf.sz_]);
+      }
       ++new_buf.sz_;
     }
 
@@ -116,10 +122,10 @@ class Vector final : private detail::VectorBuffer<T> {
   pointer data() noexcept { return data_; }
   const_pointer data() const noexcept { return data_; }
 
-  reference front() { return *begin(); };
-  reference back() { return *end(); }
-  const_reference front() const { return *cbegin(); }
-  const_reference back() const { return *cend(); }
+  reference front() noexcept { return *begin(); };
+  reference back() noexcept { return *end(); }
+  const_reference front() const noexcept { return *cbegin(); }
+  const_reference back() const noexcept { return *cend(); }
 
   reference operator[](size_type pos) noexcept { return data_[pos]; }
   const_reference operator[](size_type pos) const noexcept {
@@ -148,7 +154,6 @@ class Vector final : private detail::VectorBuffer<T> {
   }
 
   void push_back(value_type&& v) { emplace_back(v); }
-
   void push_back(const_reference v) { emplace_back(v); }
 
   void clear() noexcept {
