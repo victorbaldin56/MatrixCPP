@@ -219,4 +219,19 @@ class Matrix final {
   ContigiousContainer data_;
 };
 
+template <typename T>
+auto operator*(const Matrix<T>& a, const Matrix<T>& b) {
+  auto a_cols = a.cols();
+  auto a_rows = a.rows();
+  auto b_cols = b.cols();
+  auto b_rows = b.rows();
+
+  if (a_cols != b_rows) {
+    throw std::runtime_error("product: invalid arguments (a.cols != b.rows)");
+  }
+
+  Matrix<T> res(a_cols, b_rows);
+  return res;
+}
+
 }  // namespace matrix
