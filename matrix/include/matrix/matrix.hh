@@ -40,9 +40,10 @@ class Matrix final {
   using size_type = typename ContigiousContainer::size_type;
 
  public:  // constructors
+  Matrix() {}
+
   /** Creates and fills matrix with given value */
-  explicit Matrix(size_type rows = 0, size_type cols = 0,
-                  const_reference val = value_type())
+  Matrix(size_type rows, size_type cols, const_reference val = value_type())
       : data_(rows * cols, val), rows_(rows), cols_(cols) {}
 
   /** Creates matrix from given sequence */
@@ -129,6 +130,10 @@ class Matrix final {
 
  public:  // modifiers
   void resize(size_type new_rows, size_type new_cols) {
+    if (!new_cols || !new_rows) {
+      throw std::runtime_error("Resizing to null matrix is not allowed");
+    }
+
     rows_ = new_rows;
     cols_ = new_cols;
     data_.resize(rows_ * cols_);
