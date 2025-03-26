@@ -175,4 +175,14 @@ class Vector final : private detail::VectorBuffer<T> {
   using detail::VectorBuffer<T>::data_;
 };
 
+template <typename T>
+auto operator==(const Vector<T>& x, const Vector<T>& y) {
+  return std::equal(x.cbegin(), x.cend(), y.cbegin());
+}
+
+template <typename T>
+auto operator!=(const Vector<T>& x, const Vector<T>& y) {
+  return !(x == y);
+}
+
 }  // namespace vector

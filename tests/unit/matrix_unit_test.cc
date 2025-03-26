@@ -110,6 +110,25 @@ TEST(det, integer_matrix) {
   ASSERT_TRUE(comparator::isClose(m3.det(), 4556.0));
 }
 
+TEST(mmult, integer_matrix_2x2) {
+  // clang-format off
+  matrix::Matrix<int> m1{
+    {1,  2},
+    {10, 4}};
+
+  matrix::Matrix<int> m2{
+    {100, 5},
+    {7,   8}};
+
+  matrix::Matrix<int> ref{
+    {114,  21},
+    {1028, 82}};
+  // clang-format on
+
+  auto res = m1 * m2;
+  ASSERT_TRUE(res == ref);
+}
+
 int main(int argc, char** argv) {
   ::testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();

@@ -63,11 +63,35 @@ class Matrix final {
     std::copy(other.cbegin(), other.cend(), std::back_inserter(data_));
   }
 
+  Matrix(const std::initializer_list<std::initializer_list<T>>& ilist) {
+    rows_ = ilist.size();
+    if (!rows_) {
+      return;
+    }
+
+    cols_ = ilist.begin()->size();
+    if (!cols_) {
+      throw std::runtime_error(
+          "Cannot initialize matrix with rows != 0 and cols = 0");
+    }
+
+    data_.reserve(rows_ * cols_);
+
+    std::for_each(ilist.begin(), ilist.end(), [this](auto&& row) {
+      if (row.size() != cols_) {
+        throw std::runtime_error("Invalid initializer list");
+      }
+      std::copy(row.begin(), row.end(), std::back_inserter(data_));
+    });
+  }
+
  private:
   template <bool IsConst>
   class ProxyRowBase {
     using StoredIterator =
         typename std::conditional_t<IsConst, const_iterator, iterator>;
+    using RowElemReference =
+        typename std::conditional_t<IsConst, const_reference, reference>;
 
     StoredIterator begin_;
     size_type cols_;
@@ -76,25 +100,13 @@ class Matrix final {
     ProxyRowBase(StoredIterator p, size_type cols) noexcept
         : begin_(p), cols_(cols) {}
 
-    template <typename = std::enable_if_t<!IsConst>>
-    reference operator[](size_type pos) {
-      return begin_[pos];
-    }
+    RowElemReference operator[](size_type pos) { return begin_[pos]; }
 
-    const_reference operator[](size_type pos) const { return begin_[pos]; }
+    StoredIterator begin() noexcept { return begin_; }
+    StoredIterator end() noexcept { return begin_ + cols_; }
 
-    template <typename = std::enable_if_t<!IsConst>>
-    StoredIterator begin() {
-      return begin_;
-    }
-
-    template <typename = std::enable_if_t<!IsConst>>
-    StoredIterator end() {
-      return begin_ + cols_;
-    }
-
-    const_iterator cbegin() const { return begin_; }
-    const_iterator cend() const { return begin_ + cols_; }
+    const_iterator cbegin() const noexcept { return begin_; }
+    const_iterator cend() const noexcept { return begin_ + cols_; }
   };
 
  public:  // member types
@@ -208,6 +220,12 @@ class Matrix final {
     return det;
   }
 
+ public:
+  auto operator==(const Matrix& rhs) const { return data_ == rhs.data_; }
+  auto operator!=(const Matrix& rhs) const { return !(*this == rhs); }
+
+  Matrix& operator*=(const Matrix& other);
+
  public:  // static functions
   /** Creates eye matrix */
   static Matrix eye(size_type n) {
@@ -219,8 +237,8 @@ class Matrix final {
   }
 
  private:
-  size_type rows_;
-  size_type cols_;
+  size_type rows_ = 0;
+  size_type cols_ = 0;
   ContigiousContainer data_;
 };
 
@@ -236,7 +254,23 @@ auto operator*(const Matrix<T>& a, const Matrix<T>& b) {
   }
 
   Matrix<T> res(a_cols, b_rows);
+  using size_type = typename Matrix<T>::size_type;
+  for (size_type i = 0; i < a_rows; ++i) {
+    auto a_row_i = a[i];
+    for (size_type j = 0; j < b_cols; ++j) {
+      for (size_type k = 0; k < a_cols; ++k) {
+        res[i][j] += a_row_i[k] * b[k][j];
+      }
+    }
+  }
   return res;
+}
+
+template <typename T>
+Matrix<T>& Matrix<T>::operator*=(const Matrix<T>& other) {
+  auto res = *this * other;
+  std::swap(res, *this);
+  return *this;
 }
 
 }  // namespace matrix
