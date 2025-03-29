@@ -9,6 +9,9 @@ namespace matrix {
 template <typename T>
 class MatrixChain final {
  public:
+  using size_type = typename Matrix<T>::size_type;
+
+ public:
   MatrixChain() = default;
 
   template <typename... Args>
@@ -16,9 +19,8 @@ class MatrixChain final {
     matrices_.emplace_back(std::forward(args)...);
   }
 
-  auto multiply() const {}
-
  private:
+  std::vector<size_type> sizes_;
   std::vector<Matrix<T>> matrices_;
 };
 
