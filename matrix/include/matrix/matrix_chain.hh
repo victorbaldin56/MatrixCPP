@@ -1,6 +1,7 @@
 #pragma once
 
 #include <list>
+#include <stack>
 #include <vector>
 
 #include "matrix.hh"
@@ -34,10 +35,6 @@ class MatrixChain final {
   auto getOrder() const {
     std::vector<std::size_t> res;
     auto sz = sizes_.size();
-    if (sz == 1) {
-      return res;
-    }
-
     DpMatrix dp(sz, std::vector<DpResult>(sz));
 
     for (std::size_t l = 2; l < sz; ++l) {
@@ -55,8 +52,7 @@ class MatrixChain final {
       }
     }
 
-    auto sp = dp[1][sz - 1].split_point;
-    return res;
+    return getOrderVector(1, sz - 1, dp);
   }
 
   auto multiply() const {
@@ -89,6 +85,31 @@ class MatrixChain final {
     }
 
     return current_chain.front();
+  }
+
+ private:
+  static auto getOrderVector(size_t i, size_t j, const DpMatrix& dp) {
+    std::vector<size_t> order;
+    std::stack<std::pair<size_t, size_t>> order_stk;
+    order_stk.push({i, j});
+
+    while (!order_stk.empty()) {
+      auto [left, right] = order_stk.top();
+      order_stk.pop();
+
+      if (left == right) {
+        continue;
+      }
+
+      size_t k = dp[left][right].split_point;
+      order.push_back(k - 1);
+
+      order_stk.push({left, k});
+      order_stk.push({k + 1, right});
+    }
+
+    std::reverse(order.begin(), order.end());
+    return order;
   }
 
  private:
