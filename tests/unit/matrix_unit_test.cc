@@ -1,3 +1,4 @@
+#include <random>
 #include <stdexcept>
 
 #include "gtest/gtest.h"
@@ -127,6 +128,30 @@ TEST(mmult, integer_matrix_2x2) {
 
   auto res = m1 * m2;
   ASSERT_TRUE(res == ref);
+}
+
+namespace {
+
+constexpr auto kPrngSeed = 0xdeadbeef;
+
+template <typename T>
+auto generateRandomMatrix(std::size_t rows, std::size_t cols) {
+  std::mt19937_64 prng(kPrngSeed);
+  std::uniform_real_distribution<double> dist(-1.0, 1.0);
+
+  matrix::Matrix<T> mat(rows, cols);
+  std::transform(mat.begin(), mat.end(),
+                 [&](auto&& elem) { elem = dist(prng); });
+  return mat;
+}
+
+}  // namespace
+
+TEST(mmult, matrix_chain) {
+  std::mt19937_64 prng(kPrngSeed);
+  std::uniform_int_distribution<std::size_t> dist(10, 100);
+
+  auto rows = dist(prng);
 }
 
 int main(int argc, char** argv) {
