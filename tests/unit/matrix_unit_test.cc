@@ -1,8 +1,10 @@
+#include <numeric>
 #include <random>
 #include <stdexcept>
 
 #include "gtest/gtest.h"
 #include "matrix/matrix.hh"
+#include "matrix/matrix_chain.hh"
 
 TEST(matrix_ctor, simple) {
   // clang-format off
@@ -151,7 +153,26 @@ TEST(mmult, matrix_chain) {
   std::mt19937_64 prng(kPrngSeed);
   std::uniform_int_distribution<std::size_t> dist(10, 100);
 
+  using Order = matrix::MatrixChain<double>::Order;
+  matrix::MatrixChain<double> mats;
+
   auto rows = dist(prng);
+  auto cols = dist(prng);
+  mats.emplace_back(rows, cols);
+
+  constexpr std::size_t kNumMat = 20;
+
+  for (std::size_t i = 0; i < kNumMat - 1; ++i) {
+    auto new_cols = dist(prng);
+    mats.emplace_back(cols, new_cols);
+  }
+
+  Order naive_order(kNumMat);
+  std::iota(naive_order.begin(), naive_order.end(), 0);
+
+  auto res_fast = mats.multiply(mats.getOptimalOrder());
+  auto res_naive = mats.multiply(naive_order);
+  ASSERT_TRUE(res_fast.isClose(res_naive));
 }
 
 int main(int argc, char** argv) {

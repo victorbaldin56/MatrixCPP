@@ -224,6 +224,12 @@ class Matrix final {
   auto operator==(const Matrix& rhs) const { return data_ == rhs.data_; }
   auto operator!=(const Matrix& rhs) const { return !(*this == rhs); }
 
+  auto isClose(const Matrix& other) const noexcept {
+    return std::equal(
+        cbegin(), cend(), other.cbegin(),
+        [](auto&& lhs, auto&& rhs) { return comparator::isClose(lhs, rhs); });
+  }
+
   Matrix& operator*=(const Matrix& other);
 
  public:  // static functions

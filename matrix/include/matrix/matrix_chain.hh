@@ -2,6 +2,7 @@
 
 #include <list>
 #include <stack>
+#include <utility>
 #include <vector>
 
 #include "matrix.hh"
@@ -18,11 +19,14 @@ class MatrixChain final {
   using DpMatrix = std::vector<std::vector<DpResult>>;
 
  public:
+  using Order = std::vector<std::size_t>;
+
+ public:
   MatrixChain() = default;
 
   template <typename... Args>
-  auto emplace(Args&&... args) {
-    matrices_.emplace_back(std::forward(args)...);
+  auto emplace_back(Args&&... args) {
+    matrices_.emplace_back(std::forward<Args>(args)...);
     if (matrices_.size() == 1) {
       sizes_.push_back(matrices_.back().rows());
     } else if (sizes_.back() != matrices_.back().rows()) {
@@ -32,8 +36,8 @@ class MatrixChain final {
     sizes_.push_back(matrices_.back().cols());
   }
 
-  auto getOrder() const {
-    std::vector<std::size_t> res;
+  auto getOptimalOrder() const {
+    Order res;
     auto sz = sizes_.size();
     DpMatrix dp(sz, std::vector<DpResult>(sz));
 
@@ -55,8 +59,7 @@ class MatrixChain final {
     return getOrderVector(1, sz - 1, dp);
   }
 
-  auto multiply() const {
-    auto order = getOrder();
+  auto multiply(const Order& order) const {
     auto order_size = order.size();
     auto chain_size = matrices_.size();
 
@@ -89,8 +92,8 @@ class MatrixChain final {
 
  private:
   static auto getOrderVector(size_t i, size_t j, const DpMatrix& dp) {
-    std::vector<size_t> order;
-    std::stack<std::pair<size_t, size_t>> order_stk;
+    Order order;
+    std::stack<std::pair<std::size_t, std::size_t>> order_stk;
     order_stk.push({i, j});
 
     while (!order_stk.empty()) {
@@ -101,7 +104,7 @@ class MatrixChain final {
         continue;
       }
 
-      size_t k = dp[left][right].split_point;
+      auto k = dp[left][right].split_point;
       order.push_back(k - 1);
 
       order_stk.push({left, k});

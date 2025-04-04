@@ -59,7 +59,7 @@ struct VectorBuffer {
   VectorBuffer& operator=(VectorBuffer&& other) noexcept {
     sz_ = std::exchange(other.sz_, 0);
     cap_ = std::exchange(other.cap_, 0);
-    data_ = std::exchange(other.data_, 0);
+    data_ = std::exchange(other.data_, nullptr);
     return *this;
   }
 
